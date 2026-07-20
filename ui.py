@@ -262,6 +262,7 @@ html, body, [data-testid="stAppViewContainer"], .stApp,
 section.main {
   background-color: #0B1210 !important;
   color: #E8EEEC !important;
+  color-scheme: dark;
 }
 [data-testid="stHeader"] {
   background: rgba(11, 18, 16, 0.92) !important;
@@ -273,16 +274,19 @@ section.main {
   color: #E8EEEC !important;
   border-right: 1px solid #2A3531 !important;
 }
-/* Não forçar cor em * — isso deixa texto claro em botão branco */
 [data-testid="stSidebar"] [data-testid="stMarkdownContainer"],
 [data-testid="stSidebar"] [data-testid="stWidgetLabel"],
 [data-testid="stSidebar"] [data-testid="stCaptionContainer"],
 [data-testid="stSidebar"] label {
   color: #E8EEEC !important;
 }
-/* Texto principal */
-.stMarkdown, .stMarkdown p, .stMarkdown li, .stCaption, .stText,
-[data-testid="stMarkdownContainer"], [data-testid="stWidgetLabel"] {
+/* Texto principal — NÃO aplicar dentro de botões/controles */
+.stMarkdown:not(button *),
+.stMarkdown p:not(button *),
+.stMarkdown li,
+.stCaption, .stText,
+[data-testid="stMarkdownContainer"]:not(button *):not([data-testid="stSegmentedControl"] *),
+[data-testid="stWidgetLabel"] {
   color: #E8EEEC !important;
 }
 .stMarkdown h1, .stMarkdown h2, .stMarkdown h3, .stMarkdown h4 {
@@ -291,7 +295,6 @@ section.main {
 .stCaption, [data-testid="stCaptionContainer"] {
   color: #A8B5B0 !important;
 }
-/* Containers / cards nativos */
 [data-testid="stVerticalBlockBorderWrapper"],
 div[data-testid="stExpander"],
 [data-testid="stMetric"] {
@@ -303,79 +306,180 @@ div[data-testid="stExpander"],
   color: #F4F7F6 !important;
 }
 
-/* —— Botões legíveis (modo escuro) —— */
-.stButton > button,
-[data-testid="stBaseButton-secondary"],
-[data-testid="stBaseButton-secondaryFormSubmit"],
-[data-testid="stBaseButton-primary"],
-[data-testid="stBaseButton-primaryFormSubmit"],
-[data-testid="stBaseButton-tertiary"],
-[data-testid="stBaseButton-tertiaryFormSubmit"],
-button[data-testid^="stBaseButton"] {
+/* =========================================================
+   CONTROLES INTERATIVOS — regra geral anti branco-no-branco
+   Fundo escuro + texto claro em TODO botão/option/radio
+   ========================================================= */
+.stApp button:not([data-baseweb="tab"]):not([role="tab"]),
+.stApp [role="button"]:not([data-baseweb="tab"]),
+.stApp [data-testid^="stBaseButton"],
+.stApp [data-baseweb="button"],
+.stApp [data-baseweb="tag"],
+.stApp [role="radio"],
+.stApp [role="option"] {
+  background: #24332E !important;
   background-color: #24332E !important;
+  background-image: none !important;
   color: #F8FAF9 !important;
+  -webkit-text-fill-color: #F8FAF9 !important;
   border: 1px solid #4B5E57 !important;
   opacity: 1 !important;
 }
-.stButton > button p,
-.stButton > button span,
-.stButton > button div,
-.stButton > button svg,
-[data-testid^="stBaseButton"] p,
-[data-testid^="stBaseButton"] span,
-[data-testid^="stBaseButton"] div,
-[data-testid^="stBaseButton"] svg {
+.stApp button:not([data-baseweb="tab"]):not([role="tab"]) *,
+.stApp [role="button"]:not([data-baseweb="tab"]) *,
+.stApp [data-testid^="stBaseButton"] *,
+.stApp [data-baseweb="button"] *,
+.stApp [role="radio"] *,
+.stApp [role="option"] * {
   color: #F8FAF9 !important;
+  -webkit-text-fill-color: #F8FAF9 !important;
   fill: #F8FAF9 !important;
 }
-/* Primary: destaque petróleo com texto branco */
-[data-testid="stBaseButton-primary"],
-[data-testid="stBaseButton-primaryFormSubmit"],
-.stButton > button[kind="primary"] {
+
+/* Primary */
+.stApp [data-testid="stBaseButton-primary"],
+.stApp [data-testid="stBaseButton-primaryFormSubmit"],
+.stApp button[kind="primary"] {
+  background: #0D9488 !important;
   background-color: #0D9488 !important;
-  color: #FFFFFF !important;
   border-color: #14B8A6 !important;
-}
-[data-testid="stBaseButton-primary"] p,
-[data-testid="stBaseButton-primary"] span,
-[data-testid="stBaseButton-primary"] div,
-[data-testid="stBaseButton-primary"] svg,
-[data-testid="stBaseButton-primaryFormSubmit"] p,
-[data-testid="stBaseButton-primaryFormSubmit"] span,
-[data-testid="stBaseButton-primaryFormSubmit"] svg {
   color: #FFFFFF !important;
+  -webkit-text-fill-color: #FFFFFF !important;
+}
+.stApp [data-testid="stBaseButton-primary"] *,
+.stApp [data-testid="stBaseButton-primaryFormSubmit"] *,
+.stApp button[kind="primary"] * {
+  color: #FFFFFF !important;
+  -webkit-text-fill-color: #FFFFFF !important;
   fill: #FFFFFF !important;
 }
-/* Tertiary: contorno, sem fundo branco */
-[data-testid="stBaseButton-tertiary"],
-[data-testid="stBaseButton-tertiaryFormSubmit"],
-.stButton > button[kind="tertiary"] {
+
+/* Tertiary */
+.stApp [data-testid="stBaseButton-tertiary"],
+.stApp [data-testid="stBaseButton-tertiaryFormSubmit"],
+.stApp button[kind="tertiary"] {
+  background: transparent !important;
   background-color: transparent !important;
-  color: #E8EEEC !important;
   border: 1px solid #5B6F68 !important;
-}
-[data-testid="stBaseButton-tertiary"] p,
-[data-testid="stBaseButton-tertiary"] span,
-[data-testid="stBaseButton-tertiary"] svg,
-[data-testid="stBaseButton-tertiaryFormSubmit"] p,
-[data-testid="stBaseButton-tertiaryFormSubmit"] span,
-[data-testid="stBaseButton-tertiaryFormSubmit"] svg {
   color: #E8EEEC !important;
+  -webkit-text-fill-color: #E8EEEC !important;
+}
+.stApp [data-testid="stBaseButton-tertiary"] *,
+.stApp [data-testid="stBaseButton-tertiaryFormSubmit"] *,
+.stApp button[kind="tertiary"] * {
+  color: #E8EEEC !important;
+  -webkit-text-fill-color: #E8EEEC !important;
   fill: #E8EEEC !important;
 }
-/* Hover */
-.stButton > button:hover,
-[data-testid^="stBaseButton"]:hover {
+
+.stApp button:hover:not([data-baseweb="tab"]),
+.stApp [data-testid^="stBaseButton"]:hover {
   filter: brightness(1.12);
   border-color: #5EEAD4 !important;
 }
-/* Disabled ainda legível */
-.stButton > button:disabled,
-[data-testid^="stBaseButton"]:disabled {
-  background-color: #1A2420 !important;
+.stApp button:disabled,
+.stApp [data-testid^="stBaseButton"]:disabled {
+  background: #1A2420 !important;
   color: #8A9A94 !important;
+  -webkit-text-fill-color: #8A9A94 !important;
   border-color: #2F3D38 !important;
-  opacity: 0.85 !important;
+  opacity: 0.9 !important;
+}
+
+/* —— Segmented control (Por dia / Por cidade) —— */
+[data-testid="stSegmentedControl"],
+[data-testid="stSegmentedControl"] > div {
+  background: #121A17 !important;
+  border-color: #3A4A44 !important;
+}
+[data-testid="stSegmentedControl"] button,
+[data-testid="stSegmentedControl"] label,
+[data-testid="stSegmentedControl"] [role="radio"],
+[data-testid="stSegmentedControl"] [role="option"],
+[data-testid="stSegmentedControl"] [data-baseweb="button"],
+[data-testid="stSegmentedControl"] div[role="group"] > * {
+  background: #1F2C27 !important;
+  background-color: #1F2C27 !important;
+  background-image: none !important;
+  color: #F8FAF9 !important;
+  -webkit-text-fill-color: #F8FAF9 !important;
+  border-color: #3A4A44 !important;
+}
+[data-testid="stSegmentedControl"] button *,
+[data-testid="stSegmentedControl"] label *,
+[data-testid="stSegmentedControl"] [role="radio"] *,
+[data-testid="stSegmentedControl"] [role="option"] *,
+[data-testid="stSegmentedControl"] [data-baseweb="button"] *,
+[data-testid="stSegmentedControl"] p,
+[data-testid="stSegmentedControl"] span,
+[data-testid="stSegmentedControl"] div {
+  color: #F8FAF9 !important;
+  -webkit-text-fill-color: #F8FAF9 !important;
+  fill: #F8FAF9 !important;
+}
+/* Selecionado: petróleo + texto branco (nunca fundo branco) */
+[data-testid="stSegmentedControl"] button[aria-checked="true"],
+[data-testid="stSegmentedControl"] button[aria-pressed="true"],
+[data-testid="stSegmentedControl"] button[aria-selected="true"],
+[data-testid="stSegmentedControl"] label[data-checked="true"],
+[data-testid="stSegmentedControl"] [aria-checked="true"],
+[data-testid="stSegmentedControl"] [aria-pressed="true"],
+[data-testid="stSegmentedControl"] [aria-selected="true"],
+[data-testid="stSegmentedControl"] [data-selected="true"] {
+  background: #0D9488 !important;
+  background-color: #0D9488 !important;
+  background-image: none !important;
+  color: #FFFFFF !important;
+  -webkit-text-fill-color: #FFFFFF !important;
+  border-color: #14B8A6 !important;
+}
+[data-testid="stSegmentedControl"] button[aria-checked="true"] *,
+[data-testid="stSegmentedControl"] button[aria-pressed="true"] *,
+[data-testid="stSegmentedControl"] button[aria-selected="true"] *,
+[data-testid="stSegmentedControl"] [aria-checked="true"] *,
+[data-testid="stSegmentedControl"] [aria-pressed="true"] *,
+[data-testid="stSegmentedControl"] [aria-selected="true"] *,
+[data-testid="stSegmentedControl"] [data-selected="true"] * {
+  color: #FFFFFF !important;
+  -webkit-text-fill-color: #FFFFFF !important;
+  fill: #FFFFFF !important;
+}
+
+/* Tabs */
+button[data-baseweb="tab"],
+button[role="tab"] {
+  background: transparent !important;
+  color: #A8B5B0 !important;
+  -webkit-text-fill-color: #A8B5B0 !important;
+  border: none !important;
+}
+button[data-baseweb="tab"][aria-selected="true"],
+button[role="tab"][aria-selected="true"] {
+  color: #5EEAD4 !important;
+  -webkit-text-fill-color: #5EEAD4 !important;
+}
+
+/* Checkbox / toggle */
+[data-testid="stCheckbox"] label,
+[data-testid="stCheckbox"] p,
+[data-testid="stWidgetLabel"] p,
+[data-testid="stToggle"] label,
+[data-testid="stToggle"] p {
+  color: #E8EEEC !important;
+  -webkit-text-fill-color: #E8EEEC !important;
+}
+
+/* Multiselect tags / chips */
+[data-baseweb="tag"],
+span[data-baseweb="tag"] {
+  background: #24332E !important;
+  color: #F8FAF9 !important;
+  -webkit-text-fill-color: #F8FAF9 !important;
+}
+[data-baseweb="tag"] *,
+span[data-baseweb="tag"] * {
+  color: #F8FAF9 !important;
+  -webkit-text-fill-color: #F8FAF9 !important;
 }
 
 /* Inputs */
@@ -387,6 +491,7 @@ button[data-testid^="stBaseButton"] {
 .stTextArea textarea {
   background-color: #0F1714 !important;
   color: #F4F7F6 !important;
+  -webkit-text-fill-color: #F4F7F6 !important;
   border-color: #3A4A44 !important;
   caret-color: #F4F7F6 !important;
 }
@@ -399,55 +504,31 @@ ul[role="listbox"] {
 }
 li[role="option"] {
   color: #E8EEEC !important;
+  -webkit-text-fill-color: #E8EEEC !important;
+  background: #16201C !important;
 }
-li[role="option"]:hover {
-  background-color: #1F2C27 !important;
-}
-/* Tabs */
-button[data-baseweb="tab"] {
-  color: #A8B5B0 !important;
-}
-button[data-baseweb="tab"][aria-selected="true"] {
-  color: #5EEAD4 !important;
-}
-/* Segmented control */
-[data-testid="stSegmentedControl"] button,
-[data-testid="stSegmentedControl"] label {
-  color: #F4F7F6 !important;
-  background-color: #1F2C27 !important;
-  border-color: #3A4A44 !important;
-}
-[data-testid="stSegmentedControl"] button[aria-checked="true"],
-[data-testid="stSegmentedControl"] label[data-checked="true"] {
+li[role="option"]:hover,
+li[role="option"][aria-selected="true"] {
   background-color: #0D9488 !important;
   color: #FFFFFF !important;
+  -webkit-text-fill-color: #FFFFFF !important;
 }
-/* Checkbox / toggle labels */
-[data-testid="stCheckbox"] label,
-[data-testid="stCheckbox"] p,
-[data-testid="stWidgetLabel"] p {
-  color: #E8EEEC !important;
-}
-/* Dataframe */
+
 [data-testid="stDataFrame"],
 [data-testid="stDataFrameResizable"] {
   background-color: #121A17 !important;
   color: #E8EEEC !important;
 }
-/* Alertas legíveis */
 [data-testid="stAlert"] {
   color: #F4F7F6 !important;
 }
-/* Diálogos */
 [data-testid="stModal"], [role="dialog"] {
   background-color: #16201C !important;
   color: #E8EEEC !important;
 }
-/* Progress / dividers */
 hr {
   border-color: #2F3D38 !important;
 }
-/* Links */
 a { color: #5EEAD4 !important; }
 
 /* —— Roteiro dark overrides —— */

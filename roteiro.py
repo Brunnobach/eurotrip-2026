@@ -420,14 +420,28 @@ def render_roteiro(
             f"{confirmed} confirmadas · {pending} a validar · {total} atividades no filtro"
         )
     with top_r:
-        modo = st.segmented_control(
-            "Modo de visão",
-            options=["Por dia", "Por cidade"],
-            default="Por dia",
-            key="roteiro_modo",
-            label_visibility="collapsed",
-            required=True,
-        )
+        if "roteiro_modo" not in st.session_state:
+            st.session_state["roteiro_modo"] = "Por dia"
+        m1, m2 = st.columns(2)
+        with m1:
+            if st.button(
+                "Por dia",
+                key="roteiro_modo_dia",
+                type="primary" if st.session_state["roteiro_modo"] == "Por dia" else "secondary",
+                width="stretch",
+            ):
+                st.session_state["roteiro_modo"] = "Por dia"
+                st.rerun()
+        with m2:
+            if st.button(
+                "Por cidade",
+                key="roteiro_modo_cidade",
+                type="primary" if st.session_state["roteiro_modo"] == "Por cidade" else "secondary",
+                width="stretch",
+            ):
+                st.session_state["roteiro_modo"] = "Por cidade"
+                st.rerun()
+        modo = st.session_state["roteiro_modo"]
 
     st.space("small")
     _render_gaps_summary(gaps, done_map)
