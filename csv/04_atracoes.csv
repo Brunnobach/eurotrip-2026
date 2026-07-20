@@ -1,0 +1,13 @@
+ID,Nome,Cidade,Tipo,Necessita Ingresso,Preço (EUR),Horário Marcado,Duração Estimada
+AT-01,Duomo di Milano + terraço,Milão,Ponto turístico,Sim,20 (estimado),A definir,1h30
+AT-02,Galleria Vittorio Emanuele II,Milão,Ponto turístico,Não,0,-,0h30
+AT-03,Santa Maria delle Grazie (A Última Ceia),Milão,Museu,Sim,15,Com horário marcado,0h30
+AT-04,Castello Sforzesco (pátio),Milão,Ponto turístico,Não,0,-,1h00
+AT-05,Museu Leonardo da Vinci,Milão,Museu,Sim,10,A definir,2h00
+AT-06,Positano (passeio),Positano,Passeio,Não,0 (transporte à parte),-,4h00
+AT-07,Amalfi (passeio),Amalfi,Passeio,Não,0 (transporte à parte),-,4h00
+AT-08,Capri - barco + funicular,Capri,Passeio,Sim,40 (estimado),A definir,8h00
+AT-09,Pompeia (sítio arqueológico),Pompeia,Museu,Sim,18 (estimado),A definir,3h00
+AT-10,Coliseu + Fórum Romano + Palatino,Roma,Ponto turístico,Sim,18,A definir,3h00
+AT-11,Museus Vaticanos + Capela Sistina,Roma,Museu,Sim,20,A definir (reservar online),3h00
+AT-12,Bunk'Art + city tour,Tirana,Museu,Sim,8 (estimado),-,2h30

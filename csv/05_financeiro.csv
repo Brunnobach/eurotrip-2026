@@ -1,0 +1,23 @@
+ID,Categoria,Item,Valor Estimado,Valor Real,Moeda,Pago?
+F-01,Passeio,Ingresso - Duomo di Milano + terraço,20 (estimado),,EUR,Não
+F-02,Passeio,Ingresso - Santa Maria delle Grazie (A Última Ceia),15,,EUR,Não
+F-03,Passeio,Ingresso - Museu Leonardo da Vinci,10,,EUR,Não
+F-04,Passeio,Ingresso - Capri - barco + funicular,40 (estimado),,EUR,Não
+F-05,Passeio,Ingresso - Pompeia (sítio arqueológico),18 (estimado),,EUR,Não
+F-06,Passeio,Ingresso - Coliseu + Fórum Romano + Palatino,18,,EUR,Não
+F-07,Passeio,Ingresso - Museus Vaticanos + Capela Sistina,20,,EUR,Não
+F-08,Passeio,Ingresso - Bunk'Art + city tour,8 (estimado),,EUR,Não
+F-09,Hospedagem,Hospedagem Milão (2 noites x ~110 EUR/noite),220,,EUR,Não
+F-10,Hospedagem,Hospedagem Lago di Garda (2 noites x ~100 EUR/noite),200,,EUR,Não
+F-11,Hospedagem,Hospedagem Sorrento (5 noites x ~130 EUR/noite),650,,EUR,Não
+F-12,Hospedagem,Hospedagem Roma (3 noites x ~120 EUR/noite),360,,EUR,Não
+F-13,Hospedagem,Hospedagem Tirana (2 noites x ~50 EUR/noite),100,,EUR,Não
+F-14,Transporte,Voo internacional Brasil -> Milão,900,,EUR,Não
+F-15,Transporte,Trem Pordenone -> Veneza,15,,EUR,Não
+F-16,Transporte,Voo Veneza -> Nápoles,80,,EUR,Não
+F-17,Transporte,Barco Sorrento <-> Capri,40,,EUR,Não
+F-18,Transporte,Trem Sorrento/Nápoles -> Roma,35,,EUR,Não
+F-19,Transporte,Voo Roma -> Tirana,90 (estimado),,EUR,Não
+F-20,Transporte,Voo Tirana -> Brasil (retorno),950,,EUR,Não
+F-21,Alimentação,Alimentação - Itália (12 dias x ~45 EUR/dia),540,,EUR,Não
+F-22,Alimentação,Alimentação - Albânia (3 dias x ~25 EUR/dia),75,,EUR,Não

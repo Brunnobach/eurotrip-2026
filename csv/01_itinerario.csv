@@ -1,0 +1,23 @@
+ID,Data,Cidade,País,Atividade,Tipo,Descrição,Status
+IT-01,2026-08-06,Milão,Itália,Chegada (voo/trem internacional),Deslocamento,Chegada a Milão - conferir bilhete de trem/avião até a cidade,Confirmado
+IT-02,2026-08-06,Milão,Itália,Duomo di Milano + terraço,Turismo,Comprar ingresso com acesso ao terraço,Confirmado
+IT-03,2026-08-06,Milão,Itália,Galleria Vittorio Emanuele II,Turismo,Passagem pela galeria - acesso gratuito,Confirmado
+IT-04,2026-08-06,Milão,Itália,Santa Maria delle Grazie (A Última Ceia),Turismo,Ingresso com horário marcado no site do museu - 15 EUR,Confirmado
+IT-05,2026-08-06,Milão,Itália,Castello Sforzesco,Turismo,Pátio gratuito; museus internos com ingresso à parte,Confirmado
+IT-06,2026-08-06,Milão,Itália,Museu Leonardo da Vinci (Ciência e Tecnologia),Turismo,Comprar ingresso - 10 EUR,Confirmado
+IT-07,2026-08-07,Milão,Itália,Dia livre / compras / restaurantes,Descanso,Dia livre em Milão,Confirmado
+IT-08,2026-08-08,Lago di Garda,Itália,Estadia Lago di Garda (dia 1),Turismo,Passeio pela região do lago,Confirmado
+IT-09,2026-08-09,Lago di Garda,Itália,Estadia Lago di Garda (dia 2),Turismo,Passeio pela região do lago,Confirmado
+IT-10,2026-08-10,Sorrento,Itália,Trem Pordenone -> Veneza (07:21-08:27),Deslocamento,Ver tabela Transportes,Confirmado
+IT-11,2026-08-10,Sorrento,Itália,Voo Veneza -> Nápoles (15:05-16:25),Deslocamento,Ver tabela Transportes,Confirmado
+IT-12,2026-08-10,Sorrento,Itália,Check-in Hotel Sorrento Coast Suites,Deslocamento,Check-in a partir das 14h,Confirmado
+IT-13,2026-08-11,Positano,Itália,Passeio em Positano,Turismo,Bate-volta a partir de Sorrento (barco ou ônibus SITA),Sugestão - validar
+IT-14,2026-08-12,Amalfi,Itália,Passeio em Amalfi,Turismo,Bate-volta a partir de Sorrento (barco recomendado),Sugestão - validar
+IT-15,2026-08-13,Capri,Itália,Passeio de barco a Capri,Turismo,"Grotta Azzurra, Marina Piccola, teleférico Monte Solaro",Sugestão - validar
+IT-16,2026-08-14,Pompeia,Itália,Sítio arqueológico de Pompeia/Herculano,Turismo,Trem Circumvesuviana a partir de Sorrento,Sugestão - validar
+IT-17,2026-08-15,Roma,Itália,Deslocamento Sorrento/Nápoles -> Roma,Deslocamento,Trem regional + Frecciarossa via Nápoles,Sugestão - validar
+IT-18,2026-08-16,Roma,Itália,Coliseu + Fórum Romano + Palatino,Turismo,Ingresso combinado - reservar com antecedência,Sugestão - validar
+IT-19,2026-08-17,Roma,Itália,Museus Vaticanos + Capela Sistina + Basílica de São Pedro,Turismo,Reservar horário online,Sugestão - validar
+AL-01,2026-08-18,Tirana,Albânia,Voo Roma -> Tirana + check-in,Deslocamento,Voo direto (~1h30) - conferir companhias com rota Roma-Tirana,Sugestão - validar
+AL-02,2026-08-19,Tirana,Albânia,City tour + Bunk'Art + Praça Skanderbeg,Turismo,Museu Bunk'Art (bunker da era comunista),Sugestão - validar
+AL-03,2026-08-20,Tirana,Albânia,Dia livre / compras / voo de volta,Descanso,Último dia - conferir horário do voo de retorno,Sugestão - validar

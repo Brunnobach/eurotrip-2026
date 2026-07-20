@@ -1,0 +1,7 @@
+.streamlit/secrets.toml
+eurotrip.db
+__pycache__/
+*.pyc
+_seed_*.json
+_insert_*.sql
+.venv/
