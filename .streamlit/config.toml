@@ -10,12 +10,12 @@ linkColor = "#0F766E"
 borderColor = "#E2E5E4"
 showWidgetBorder = true
 showSidebarBorder = false
-baseRadius = "8px"
+baseRadius = "10px"
 buttonRadius = "8px"
 font = "'Segoe UI', 'Open Sans':https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap"
 baseFontSize = 14
 baseFontWeight = 400
-headingFontSizes = ["30px", "24px", "20px", "16px", "14px", "12px"]
+headingFontSizes = ["28px", "22px", "18px", "16px", "14px", "12px"]
 headingFontWeights = [600, 600, 600, 500, 500, 500]
 linkUnderline = false
 chartCategoricalColors = ["#0F766E", "#D97706", "#2563EB", "#DB2777", "#65A30D", "#DC2626", "#7C3AED"]
