@@ -79,6 +79,9 @@ with st.sidebar:
     st.markdown("## :material/map: EUROTRIP 2026")
     st.caption(" · ".join(sorted(itinerario["pais"].unique())))
 
+    ui.render_theme_toggle()
+    ui.apply_app_theme()
+
     todas_cidades = sorted(
         set(itinerario["cidade"]) | set(hospedagem["cidade"]) | set(atracoes["cidade"])
     )

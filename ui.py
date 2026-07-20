@@ -194,14 +194,209 @@ ROTEIRO_CSS = """
 </style>
 """
 
+# Tokens de badge para fundo escuro (texto claro + fundo saturado = contraste alto)
+STATUS_META_DARK: dict[str, dict] = {
+    "Confirmado": {
+        "label": "Confirmado",
+        "color": "#BBF7D0",
+        "bg": "#14532D",
+        "border": "#4ADE80",
+        "icon": ":material/check_circle:",
+    },
+    "Sugestão - validar": {
+        "label": "A validar",
+        "color": "#FDE68A",
+        "bg": "#78350F",
+        "border": "#FBBF24",
+        "icon": ":material/pending:",
+    },
+    "Cancelado": {
+        "label": "Cancelado",
+        "color": "#FECACA",
+        "bg": "#7F1D1D",
+        "border": "#F87171",
+        "icon": ":material/cancel:",
+    },
+}
+
+# Shell do app em modo escuro — contraste alto, sem cinza-em-cinza
+DARK_APP_CSS = """
+<style>
+/* —— EUROTRIP dark shell —— */
+html, body, [data-testid="stAppViewContainer"], .stApp,
+[data-testid="stAppViewBlockContainer"],
+section.main {
+  background-color: #0B1210 !important;
+  color: #E8EEEC !important;
+}
+[data-testid="stHeader"] {
+  background: rgba(11, 18, 16, 0.92) !important;
+}
+[data-testid="stSidebar"],
+[data-testid="stSidebar"] > div:first-child,
+[data-testid="stSidebarContent"] {
+  background-color: #121A17 !important;
+  color: #E8EEEC !important;
+  border-right: 1px solid #2A3531 !important;
+}
+[data-testid="stSidebar"] * {
+  color: #E8EEEC;
+}
+/* Texto principal */
+.stMarkdown, .stMarkdown p, .stMarkdown li, .stCaption, .stText,
+[data-testid="stMarkdownContainer"], [data-testid="stWidgetLabel"],
+label, .stSelectbox, .stMultiSelect {
+  color: #E8EEEC !important;
+}
+.stMarkdown h1, .stMarkdown h2, .stMarkdown h3, .stMarkdown h4 {
+  color: #F4F7F6 !important;
+}
+.stCaption, [data-testid="stCaptionContainer"] {
+  color: #A8B5B0 !important;
+}
+/* Containers / cards nativos */
+[data-testid="stVerticalBlockBorderWrapper"],
+div[data-testid="stExpander"],
+[data-testid="stMetric"] {
+  background-color: #16201C !important;
+  border-color: #2F3D38 !important;
+  color: #E8EEEC !important;
+}
+[data-testid="stMetricValue"], [data-testid="stMetricLabel"] {
+  color: #F4F7F6 !important;
+}
+/* Inputs */
+[data-baseweb="input"] input,
+[data-baseweb="textarea"] textarea,
+[data-baseweb="select"] > div,
+[data-baseweb="base-input"],
+.stTextInput input, .stNumberInput input, .stDateInput input,
+.stTextArea textarea {
+  background-color: #0F1714 !important;
+  color: #F4F7F6 !important;
+  border-color: #3A4A44 !important;
+  caret-color: #F4F7F6 !important;
+}
+[data-baseweb="popover"],
+[data-baseweb="menu"],
+ul[role="listbox"] {
+  background-color: #16201C !important;
+  color: #E8EEEC !important;
+  border-color: #3A4A44 !important;
+}
+li[role="option"] {
+  color: #E8EEEC !important;
+}
+li[role="option"]:hover {
+  background-color: #1F2C27 !important;
+}
+/* Tabs */
+button[data-baseweb="tab"] {
+  color: #A8B5B0 !important;
+}
+button[data-baseweb="tab"][aria-selected="true"] {
+  color: #5EEAD4 !important;
+}
+/* Dataframe */
+[data-testid="stDataFrame"],
+[data-testid="stDataFrameResizable"] {
+  background-color: #121A17 !important;
+  color: #E8EEEC !important;
+}
+/* Alertas legíveis */
+[data-testid="stAlert"] {
+  color: #F4F7F6 !important;
+}
+/* Diálogos */
+[data-testid="stModal"], [role="dialog"] {
+  background-color: #16201C !important;
+  color: #E8EEEC !important;
+}
+/* Progress / dividers */
+hr {
+  border-color: #2F3D38 !important;
+}
+/* Links */
+a { color: #5EEAD4 !important; }
+
+/* —— Roteiro dark overrides —— */
+.et-day-head {
+  border-bottom-color: #2F3D38;
+}
+.et-day-head--today {
+  border-bottom-color: #2DD4BF;
+  background: linear-gradient(90deg, rgba(45, 212, 191, 0.16), transparent 72%);
+}
+.et-day-date { color: #F4F7F6; }
+.et-day-cities { color: #5EEAD4; }
+.et-day-progress {
+  color: #D1DAD6;
+  background: #1F2C27;
+  border-color: #3A4A44;
+}
+.et-chip {
+  background: #134E4A;
+  border-color: #2DD4BF;
+  color: #CCFBF1;
+}
+.et-chip--hotel {
+  background: #7C2D12;
+  border-color: #FB923C;
+  color: #FFEDD5;
+}
+.et-card-title { color: #F4F7F6; }
+.et-card-meta { color: #A8B5B0; }
+.et-card-desc { color: #D1DAD6; }
+.et-city-head h3 { color: #5EEAD4; }
+.et-city-sub { color: #A8B5B0; }
+.et-empty {
+  color: #A8B5B0;
+  border-color: #3A4A44;
+  background: #121A17;
+}
+.et-empty strong { color: #F4F7F6; }
+.et-today-tag {
+  color: #042F2E;
+  background: #5EEAD4;
+}
+</style>
+"""
+
+
+def is_dark_mode() -> bool:
+    return bool(st.session_state.get("dark_mode", False))
+
+
+def render_theme_toggle() -> bool:
+    """Toggle na sidebar. Retorna se o modo escuro está ativo."""
+    if "dark_mode" not in st.session_state:
+        st.session_state["dark_mode"] = False
+    return bool(
+        st.toggle(
+            "Modo escuro",
+            key="dark_mode",
+            help="Alto contraste para leitura noturna. Badges e cards acompanham o tema.",
+        )
+    )
+
+
+def apply_app_theme() -> None:
+    """Aplica CSS global do modo escuro (se ativo)."""
+    if is_dark_mode():
+        st.html(DARK_APP_CSS)
+
 
 def inject_roteiro_css() -> None:
-    """Injeta CSS do Roteiro uma vez por sessão de página."""
+    """Injeta CSS base do Roteiro (overrides escuros vêm de apply_app_theme)."""
     st.html(ROTEIRO_CSS)
+    if is_dark_mode():
+        # Garante overrides mesmo se a ordem de injeção variar
+        st.html(DARK_APP_CSS)
 
 
 def status_badge_html(status: str) -> str:
-    meta = STATUS_META.get(status, STATUS_META["Sugestão - validar"])
+    palette = STATUS_META_DARK if is_dark_mode() else STATUS_META
+    meta = palette.get(status, palette["Sugestão - validar"])
     return (
         f'<span class="et-badge" style="color:{meta["color"]};background:{meta["bg"]};'
         f'border-color:{meta["border"]};">{escape(meta["label"])}</span>'
