@@ -3,9 +3,9 @@
 Painel de controle da viagem Itália + Albânia (06/08 a 20/08/2026), feito em Streamlit.
 
 A aba **Roteiro** é a visão principal: cards por dia (hotel + transportes + atividades)
-ou colunas por cidade, com ações rápidas para confirmar/editar. As demais abas
-também usam **cards** (não tabelas) para editar itinerário, transportes, hospedagem,
-atrações, financeiro e checklist.
+ou colunas por cidade, com ações rápidas para confirmar/editar. Entre um dia e outro o
+app aponta **lacunas** (transporte, hotel, mobilidade local, documentos, horários) com
+checklist compartilhado. As demais abas também usam **cards** (não tabelas).
 
 ## Rodar localmente
 

@@ -244,7 +244,15 @@ with tabs[0]:
     ho_f = apply_cidade_filter(hospedagem, ["cidade"], cidade_filtro)
     ho_f = apply_period_filter(ho_f, ["checkin", "checkout"], periodo_ini, periodo_fim)
 
-    roteiro.render_roteiro(it_f, tr_f, ho_f)
+    roteiro.render_roteiro(
+        it_f,
+        tr_f,
+        ho_f,
+        checklist=checklist,
+        all_itinerario=itinerario,
+        all_transportes=transportes,
+        all_hospedagem=hospedagem,
+    )
 
 # --- ITINERÁRIO ---
 with tabs[1]:

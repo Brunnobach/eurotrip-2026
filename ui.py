@@ -191,6 +191,40 @@ ROTEIRO_CSS = """
   padding: 0.12rem 0.4rem;
   vertical-align: middle;
 }
+.et-gap {
+  border: 1px dashed #D97706;
+  border-radius: 12px;
+  padding: 0.75rem 0.9rem;
+  margin: 0.35rem 0 1rem 0;
+  background: #FFFBEB;
+}
+.et-gap-title {
+  font-weight: 650;
+  color: #92400E;
+  font-size: 0.95rem;
+  margin: 0 0 0.2rem 0;
+}
+.et-gap-detail {
+  color: #78716C;
+  font-size: 0.86rem;
+  line-height: 1.4;
+  margin: 0 0 0.45rem 0;
+}
+.et-gap-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #B45309;
+  margin-bottom: 0.45rem;
+}
+.et-gap-summary {
+  border: 1px solid #F59E0B;
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  margin: 0 0 1rem 0;
+  background: linear-gradient(180deg, #FFFBEB 0%, #FFFFFF 100%);
+}
 </style>
 """
 
@@ -358,6 +392,17 @@ a { color: #5EEAD4 !important; }
 .et-today-tag {
   color: #042F2E;
   background: #5EEAD4;
+}
+.et-gap {
+  border-color: #F59E0B;
+  background: #291C0E;
+}
+.et-gap-title { color: #FDE68A; }
+.et-gap-detail { color: #D6D3D1; }
+.et-gap-label { color: #FBBF24; }
+.et-gap-summary {
+  border-color: #D97706;
+  background: linear-gradient(180deg, #291C0E 0%, #16201C 100%);
 }
 </style>
 """

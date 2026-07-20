@@ -2,12 +2,15 @@
 from __future__ import annotations
 
 import re
+from collections import defaultdict
 from datetime import date, timedelta
 from html import escape
 
 import pandas as pd
 import streamlit as st
 
+import db
+import lacunas
 import ui
 
 WEEKDAYS_PT = {
@@ -112,6 +115,51 @@ def _render_transport_chips(transports: pd.DataFrame) -> None:
     st.html(f'<div class="et-chip-row">{"".join(chips)}</div>')
 
 
+def _render_gap_card(gap: lacunas.Gap, done: bool) -> None:
+    st.html(
+        f'<div class="et-gap">'
+        f'<div class="et-gap-label">Não esquecer · entre trechos</div>'
+        f'<p class="et-gap-title">{escape(gap.title)}</p>'
+        f'<p class="et-gap-detail">{escape(gap.detail)}</p>'
+        f"</div>"
+    )
+    checked = st.checkbox(
+        "Já resolvemos isso",
+        value=done,
+        key=f"gap_done_{gap.id}",
+        help="Salva no Checklist (categoria Entre trechos) para vocês dois acompanharem.",
+    )
+    if checked != done:
+        db.update_row("checklist", gap.id, {"concluido": checked})
+        st.toast(
+            "Lacuna atualizada no checklist." if checked else "Lacuna reaberta.",
+            icon=":material/check_circle:",
+        )
+        st.rerun()
+
+
+def _render_gaps_summary(gaps: list[lacunas.Gap], done_map: dict[str, bool]) -> None:
+    pending = [g for g in gaps if not done_map.get(g.id, False)]
+    if not gaps:
+        st.success(
+            "Nenhuma lacuna óbvia entre trechos — ótimo sinal.",
+            icon=":material/verified:",
+        )
+        return
+
+    st.html(
+        f'<div class="et-gap-summary">'
+        f"<strong>{len(pending)} pendente(s)</strong> de {len(gaps)} lembretes entre trechos "
+        f"(transporte, hotel, mobilidade, documentos, horários)."
+        f"</div>"
+    )
+    if pending:
+        with st.expander("Ver todas as lacunas pendentes", expanded=False):
+            for g in pending:
+                st.markdown(f"**{g.icon} {g.title}**")
+                st.caption(g.detail)
+
+
 def _render_day_block(
     day: date,
     activities: pd.DataFrame,
@@ -152,8 +200,12 @@ def render_por_dia(
     itinerario: pd.DataFrame,
     transportes: pd.DataFrame,
     hospedagem: pd.DataFrame,
+    gaps: list[lacunas.Gap] | None = None,
+    done_map: dict[str, bool] | None = None,
 ) -> None:
     today = date.today()
+    gaps = gaps or []
+    done_map = done_map or {}
 
     if itinerario.empty and transportes.empty and hospedagem.empty:
         _render_empty_state()
@@ -184,6 +236,11 @@ def render_por_dia(
         _render_empty_state()
         return
 
+    by_after: dict[date, list[lacunas.Gap]] = defaultdict(list)
+    for g in gaps:
+        if g.after_day is not None:
+            by_after[g.after_day].append(g)
+
     for day in sorted(dates):
         day_ts = pd.Timestamp(day)
         acts = (
@@ -196,6 +253,19 @@ def render_por_dia(
         if acts.empty and hotels.empty and transports.empty:
             continue
         _render_day_block(day, acts, hotels, transports, today)
+
+        day_gaps = by_after.get(day, [])
+        pending_here = [g for g in day_gaps if not done_map.get(g.id, False)]
+        done_here = [g for g in day_gaps if done_map.get(g.id, False)]
+        for g in pending_here:
+            _render_gap_card(g, done=False)
+        if done_here:
+            with st.expander(
+                f"{len(done_here)} lembrete(s) já resolvido(s) após este dia",
+                expanded=False,
+            ):
+                for g in done_here:
+                    _render_gap_card(g, done=True)
 
 
 def _cities_ordered(itinerario: pd.DataFrame, hospedagem: pd.DataFrame) -> list[str]:
@@ -319,9 +389,25 @@ def render_roteiro(
     itinerario: pd.DataFrame,
     transportes: pd.DataFrame,
     hospedagem: pd.DataFrame,
+    checklist: pd.DataFrame | None = None,
+    *,
+    all_itinerario: pd.DataFrame | None = None,
+    all_transportes: pd.DataFrame | None = None,
+    all_hospedagem: pd.DataFrame | None = None,
 ) -> None:
     """Entrada principal da aba Roteiro."""
     ui.inject_roteiro_css()
+
+    # Lacunas sempre no roteiro completo (filtros não escondem o que falta)
+    gaps = lacunas.detect_gaps(
+        all_itinerario if all_itinerario is not None else itinerario,
+        all_transportes if all_transportes is not None else transportes,
+        all_hospedagem if all_hospedagem is not None else hospedagem,
+    )
+    checklist = checklist if checklist is not None else pd.DataFrame()
+    if gaps:
+        checklist = lacunas.sync_gaps_to_checklist(gaps, checklist)
+    done_map = lacunas.checklist_done_map(checklist)
 
     total = len(itinerario)
     confirmed = int((itinerario["status"] == "Confirmado").sum()) if total else 0
@@ -344,12 +430,17 @@ def render_roteiro(
         )
 
     st.space("small")
+    _render_gaps_summary(gaps, done_map)
 
     if modo == "Por cidade":
         render_por_cidade(itinerario, transportes, hospedagem)
+        pending_gaps = [g for g in gaps if not done_map.get(g.id, False)]
+        if pending_gaps:
+            st.markdown("#### :material/checklist: Lembretes entre trechos")
+            for g in pending_gaps:
+                _render_gap_card(g, done=False)
     else:
-        # default / None → por dia
-        render_por_dia(itinerario, transportes, hospedagem)
+        render_por_dia(itinerario, transportes, hospedagem, gaps=gaps, done_map=done_map)
 
     with st.expander("Adicionar atividade ao itinerário", expanded=False):
         if st.button("Nova atividade", icon=":material/add:", type="primary", key="roteiro_add"):
