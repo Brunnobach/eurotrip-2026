@@ -191,6 +191,40 @@ ROTEIRO_CSS = """
   padding: 0.12rem 0.4rem;
   vertical-align: middle;
 }
+.et-gap {
+  border: 1px dashed #D97706;
+  border-radius: 12px;
+  padding: 0.75rem 0.9rem;
+  margin: 0.35rem 0 1rem 0;
+  background: #FFFBEB;
+}
+.et-gap-title {
+  font-weight: 650;
+  color: #92400E;
+  font-size: 0.95rem;
+  margin: 0 0 0.2rem 0;
+}
+.et-gap-detail {
+  color: #78716C;
+  font-size: 0.86rem;
+  line-height: 1.4;
+  margin: 0 0 0.45rem 0;
+}
+.et-gap-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #B45309;
+  margin-bottom: 0.45rem;
+}
+.et-gap-summary {
+  border: 1px solid #F59E0B;
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  margin: 0 0 1rem 0;
+  background: linear-gradient(180deg, #FFFBEB 0%, #FFFFFF 100%);
+}
 </style>
 """
 
@@ -228,6 +262,7 @@ html, body, [data-testid="stAppViewContainer"], .stApp,
 section.main {
   background-color: #0B1210 !important;
   color: #E8EEEC !important;
+  color-scheme: dark;
 }
 [data-testid="stHeader"] {
   background: rgba(11, 18, 16, 0.92) !important;
@@ -239,13 +274,19 @@ section.main {
   color: #E8EEEC !important;
   border-right: 1px solid #2A3531 !important;
 }
-[data-testid="stSidebar"] * {
-  color: #E8EEEC;
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"],
+[data-testid="stSidebar"] [data-testid="stWidgetLabel"],
+[data-testid="stSidebar"] [data-testid="stCaptionContainer"],
+[data-testid="stSidebar"] label {
+  color: #E8EEEC !important;
 }
-/* Texto principal */
-.stMarkdown, .stMarkdown p, .stMarkdown li, .stCaption, .stText,
-[data-testid="stMarkdownContainer"], [data-testid="stWidgetLabel"],
-label, .stSelectbox, .stMultiSelect {
+/* Texto principal — NÃO aplicar dentro de botões/controles */
+.stMarkdown:not(button *),
+.stMarkdown p:not(button *),
+.stMarkdown li,
+.stCaption, .stText,
+[data-testid="stMarkdownContainer"]:not(button *):not([data-testid="stSegmentedControl"] *),
+[data-testid="stWidgetLabel"] {
   color: #E8EEEC !important;
 }
 .stMarkdown h1, .stMarkdown h2, .stMarkdown h3, .stMarkdown h4 {
@@ -254,7 +295,6 @@ label, .stSelectbox, .stMultiSelect {
 .stCaption, [data-testid="stCaptionContainer"] {
   color: #A8B5B0 !important;
 }
-/* Containers / cards nativos */
 [data-testid="stVerticalBlockBorderWrapper"],
 div[data-testid="stExpander"],
 [data-testid="stMetric"] {
@@ -265,6 +305,183 @@ div[data-testid="stExpander"],
 [data-testid="stMetricValue"], [data-testid="stMetricLabel"] {
   color: #F4F7F6 !important;
 }
+
+/* =========================================================
+   CONTROLES INTERATIVOS — regra geral anti branco-no-branco
+   Fundo escuro + texto claro em TODO botão/option/radio
+   ========================================================= */
+.stApp button:not([data-baseweb="tab"]):not([role="tab"]),
+.stApp [role="button"]:not([data-baseweb="tab"]),
+.stApp [data-testid^="stBaseButton"],
+.stApp [data-baseweb="button"],
+.stApp [data-baseweb="tag"],
+.stApp [role="radio"],
+.stApp [role="option"] {
+  background: #24332E !important;
+  background-color: #24332E !important;
+  background-image: none !important;
+  color: #F8FAF9 !important;
+  -webkit-text-fill-color: #F8FAF9 !important;
+  border: 1px solid #4B5E57 !important;
+  opacity: 1 !important;
+}
+.stApp button:not([data-baseweb="tab"]):not([role="tab"]) *,
+.stApp [role="button"]:not([data-baseweb="tab"]) *,
+.stApp [data-testid^="stBaseButton"] *,
+.stApp [data-baseweb="button"] *,
+.stApp [role="radio"] *,
+.stApp [role="option"] * {
+  color: #F8FAF9 !important;
+  -webkit-text-fill-color: #F8FAF9 !important;
+  fill: #F8FAF9 !important;
+}
+
+/* Primary */
+.stApp [data-testid="stBaseButton-primary"],
+.stApp [data-testid="stBaseButton-primaryFormSubmit"],
+.stApp button[kind="primary"] {
+  background: #0D9488 !important;
+  background-color: #0D9488 !important;
+  border-color: #14B8A6 !important;
+  color: #FFFFFF !important;
+  -webkit-text-fill-color: #FFFFFF !important;
+}
+.stApp [data-testid="stBaseButton-primary"] *,
+.stApp [data-testid="stBaseButton-primaryFormSubmit"] *,
+.stApp button[kind="primary"] * {
+  color: #FFFFFF !important;
+  -webkit-text-fill-color: #FFFFFF !important;
+  fill: #FFFFFF !important;
+}
+
+/* Tertiary */
+.stApp [data-testid="stBaseButton-tertiary"],
+.stApp [data-testid="stBaseButton-tertiaryFormSubmit"],
+.stApp button[kind="tertiary"] {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: 1px solid #5B6F68 !important;
+  color: #E8EEEC !important;
+  -webkit-text-fill-color: #E8EEEC !important;
+}
+.stApp [data-testid="stBaseButton-tertiary"] *,
+.stApp [data-testid="stBaseButton-tertiaryFormSubmit"] *,
+.stApp button[kind="tertiary"] * {
+  color: #E8EEEC !important;
+  -webkit-text-fill-color: #E8EEEC !important;
+  fill: #E8EEEC !important;
+}
+
+.stApp button:hover:not([data-baseweb="tab"]),
+.stApp [data-testid^="stBaseButton"]:hover {
+  filter: brightness(1.12);
+  border-color: #5EEAD4 !important;
+}
+.stApp button:disabled,
+.stApp [data-testid^="stBaseButton"]:disabled {
+  background: #1A2420 !important;
+  color: #8A9A94 !important;
+  -webkit-text-fill-color: #8A9A94 !important;
+  border-color: #2F3D38 !important;
+  opacity: 0.9 !important;
+}
+
+/* —— Segmented control (Por dia / Por cidade) —— */
+[data-testid="stSegmentedControl"],
+[data-testid="stSegmentedControl"] > div {
+  background: #121A17 !important;
+  border-color: #3A4A44 !important;
+}
+[data-testid="stSegmentedControl"] button,
+[data-testid="stSegmentedControl"] label,
+[data-testid="stSegmentedControl"] [role="radio"],
+[data-testid="stSegmentedControl"] [role="option"],
+[data-testid="stSegmentedControl"] [data-baseweb="button"],
+[data-testid="stSegmentedControl"] div[role="group"] > * {
+  background: #1F2C27 !important;
+  background-color: #1F2C27 !important;
+  background-image: none !important;
+  color: #F8FAF9 !important;
+  -webkit-text-fill-color: #F8FAF9 !important;
+  border-color: #3A4A44 !important;
+}
+[data-testid="stSegmentedControl"] button *,
+[data-testid="stSegmentedControl"] label *,
+[data-testid="stSegmentedControl"] [role="radio"] *,
+[data-testid="stSegmentedControl"] [role="option"] *,
+[data-testid="stSegmentedControl"] [data-baseweb="button"] *,
+[data-testid="stSegmentedControl"] p,
+[data-testid="stSegmentedControl"] span,
+[data-testid="stSegmentedControl"] div {
+  color: #F8FAF9 !important;
+  -webkit-text-fill-color: #F8FAF9 !important;
+  fill: #F8FAF9 !important;
+}
+/* Selecionado: petróleo + texto branco (nunca fundo branco) */
+[data-testid="stSegmentedControl"] button[aria-checked="true"],
+[data-testid="stSegmentedControl"] button[aria-pressed="true"],
+[data-testid="stSegmentedControl"] button[aria-selected="true"],
+[data-testid="stSegmentedControl"] label[data-checked="true"],
+[data-testid="stSegmentedControl"] [aria-checked="true"],
+[data-testid="stSegmentedControl"] [aria-pressed="true"],
+[data-testid="stSegmentedControl"] [aria-selected="true"],
+[data-testid="stSegmentedControl"] [data-selected="true"] {
+  background: #0D9488 !important;
+  background-color: #0D9488 !important;
+  background-image: none !important;
+  color: #FFFFFF !important;
+  -webkit-text-fill-color: #FFFFFF !important;
+  border-color: #14B8A6 !important;
+}
+[data-testid="stSegmentedControl"] button[aria-checked="true"] *,
+[data-testid="stSegmentedControl"] button[aria-pressed="true"] *,
+[data-testid="stSegmentedControl"] button[aria-selected="true"] *,
+[data-testid="stSegmentedControl"] [aria-checked="true"] *,
+[data-testid="stSegmentedControl"] [aria-pressed="true"] *,
+[data-testid="stSegmentedControl"] [aria-selected="true"] *,
+[data-testid="stSegmentedControl"] [data-selected="true"] * {
+  color: #FFFFFF !important;
+  -webkit-text-fill-color: #FFFFFF !important;
+  fill: #FFFFFF !important;
+}
+
+/* Tabs */
+button[data-baseweb="tab"],
+button[role="tab"] {
+  background: transparent !important;
+  color: #A8B5B0 !important;
+  -webkit-text-fill-color: #A8B5B0 !important;
+  border: none !important;
+}
+button[data-baseweb="tab"][aria-selected="true"],
+button[role="tab"][aria-selected="true"] {
+  color: #5EEAD4 !important;
+  -webkit-text-fill-color: #5EEAD4 !important;
+}
+
+/* Checkbox / toggle */
+[data-testid="stCheckbox"] label,
+[data-testid="stCheckbox"] p,
+[data-testid="stWidgetLabel"] p,
+[data-testid="stToggle"] label,
+[data-testid="stToggle"] p {
+  color: #E8EEEC !important;
+  -webkit-text-fill-color: #E8EEEC !important;
+}
+
+/* Multiselect tags / chips */
+[data-baseweb="tag"],
+span[data-baseweb="tag"] {
+  background: #24332E !important;
+  color: #F8FAF9 !important;
+  -webkit-text-fill-color: #F8FAF9 !important;
+}
+[data-baseweb="tag"] *,
+span[data-baseweb="tag"] * {
+  color: #F8FAF9 !important;
+  -webkit-text-fill-color: #F8FAF9 !important;
+}
+
 /* Inputs */
 [data-baseweb="input"] input,
 [data-baseweb="textarea"] textarea,
@@ -274,6 +491,7 @@ div[data-testid="stExpander"],
 .stTextArea textarea {
   background-color: #0F1714 !important;
   color: #F4F7F6 !important;
+  -webkit-text-fill-color: #F4F7F6 !important;
   border-color: #3A4A44 !important;
   caret-color: #F4F7F6 !important;
 }
@@ -286,37 +504,31 @@ ul[role="listbox"] {
 }
 li[role="option"] {
   color: #E8EEEC !important;
+  -webkit-text-fill-color: #E8EEEC !important;
+  background: #16201C !important;
 }
-li[role="option"]:hover {
-  background-color: #1F2C27 !important;
+li[role="option"]:hover,
+li[role="option"][aria-selected="true"] {
+  background-color: #0D9488 !important;
+  color: #FFFFFF !important;
+  -webkit-text-fill-color: #FFFFFF !important;
 }
-/* Tabs */
-button[data-baseweb="tab"] {
-  color: #A8B5B0 !important;
-}
-button[data-baseweb="tab"][aria-selected="true"] {
-  color: #5EEAD4 !important;
-}
-/* Dataframe */
+
 [data-testid="stDataFrame"],
 [data-testid="stDataFrameResizable"] {
   background-color: #121A17 !important;
   color: #E8EEEC !important;
 }
-/* Alertas legíveis */
 [data-testid="stAlert"] {
   color: #F4F7F6 !important;
 }
-/* Diálogos */
 [data-testid="stModal"], [role="dialog"] {
   background-color: #16201C !important;
   color: #E8EEEC !important;
 }
-/* Progress / dividers */
 hr {
   border-color: #2F3D38 !important;
 }
-/* Links */
 a { color: #5EEAD4 !important; }
 
 /* —— Roteiro dark overrides —— */
@@ -358,6 +570,17 @@ a { color: #5EEAD4 !important; }
 .et-today-tag {
   color: #042F2E;
   background: #5EEAD4;
+}
+.et-gap {
+  border-color: #F59E0B;
+  background: #291C0E;
+}
+.et-gap-title { color: #FDE68A; }
+.et-gap-detail { color: #D6D3D1; }
+.et-gap-label { color: #FBBF24; }
+.et-gap-summary {
+  border-color: #D97706;
+  background: linear-gradient(180deg, #291C0E 0%, #16201C 100%);
 }
 </style>
 """
@@ -545,49 +768,153 @@ def render_activity_card(row: pd.Series, key_prefix: str, compact: bool = False)
                     set_itinerario_status(row_id, "Cancelado", "Atividade cancelada.")
 
 
-def render_crud_table(
+def _fmt_date_short(value) -> str:
+    if value is None or (isinstance(value, float) and pd.isna(value)):
+        return "—"
+    if isinstance(value, pd.Timestamp):
+        if pd.isna(value):
+            return "—"
+        return value.strftime("%d/%m/%Y")
+    return str(value)
+
+
+def _fmt_money(value, moeda: str = "EUR") -> str:
+    if value is None or (isinstance(value, float) and pd.isna(value)):
+        return "—"
+    try:
+        n = float(value)
+    except (TypeError, ValueError):
+        return "—"
+    symbol = {"EUR": "€", "BRL": "R$", "USD": "$"}.get(moeda, moeda + " ")
+    if moeda in {"EUR", "BRL", "USD"}:
+        return f"{symbol} {n:,.0f}".replace(",", ".")
+    return f"{n:,.0f} {moeda}"
+
+
+def plain_badge_html(label: str, *, kind: str = "ok") -> str:
+    """Badge simples para estados pago/pendente/concluído."""
+    if is_dark_mode():
+        styles = {
+            "ok": ("#BBF7D0", "#14532D", "#4ADE80"),
+            "warn": ("#FDE68A", "#78350F", "#FBBF24"),
+            "off": ("#D1DAD6", "#1F2C27", "#3A4A44"),
+        }
+    else:
+        styles = {
+            "ok": ("#166534", "#DCFCE7", "#86EFAC"),
+            "warn": ("#92400E", "#FEF3C7", "#FCD34D"),
+            "off": ("#57534E", "#F4F6F5", "#E2E5E4"),
+        }
+    color, bg, border = styles.get(kind, styles["off"])
+    return (
+        f'<span class="et-badge" style="color:{color};background:{bg};'
+        f'border-color:{border};">{escape(label)}</span>'
+    )
+
+
+def _card_toolbar(table: str, label: str, fields: list[dict], count: int) -> None:
+    left, right = st.columns([2, 1], vertical_alignment="center")
+    with left:
+        st.caption(f"{count} item(ns) nesta vista")
+    with right:
+        if st.button("Adicionar", icon=":material/add:", key=f"{table}_add", type="primary", width="stretch"):
+            open_form_dialog("add", table, label, fields)
+
+
+def _card_actions(
+    table: str,
+    label: str,
+    fields: list[dict],
+    row: pd.Series,
+    display_fn,
+    *,
+    quick_action: dict | None = None,
+) -> None:
+    row_id = str(row["id"])
+    with st.container(horizontal=True):
+        if quick_action is not None:
+            show = quick_action.get("when", lambda _r: True)
+            if show(row):
+                if st.button(
+                    quick_action["label"],
+                    icon=quick_action.get("icon"),
+                    key=f"{table}_qa_{row_id}",
+                    type="primary",
+                ):
+                    db.update_row(
+                        table,
+                        row_id,
+                        {quick_action["field"]: quick_action["value"]},
+                    )
+                    st.toast(quick_action["toast"], icon=":material/check_circle:")
+                    st.rerun()
+        if st.button("Editar", icon=":material/edit:", key=f"{table}_edit_{row_id}"):
+            open_form_dialog("edit", table, label, fields, row=row)
+        if st.button("Excluir", icon=":material/delete:", key=f"{table}_del_{row_id}", type="tertiary"):
+            open_delete_dialog(table, label, pd.DataFrame([row.to_dict()]), display_fn)
+
+
+def render_crud_cards(
     table: str,
     label: str,
     view_df: pd.DataFrame,
-    column_config: dict,
     fields: list[dict],
     display_fn,
-    bulk_action: dict | None = None,
-    height: int | None = None,
+    *,
+    title_fn,
+    lines_fn,
+    badge_fn=None,
+    icon_fn=None,
+    quick_action: dict | None = None,
+    columns: int = 1,
 ) -> None:
-    """Tabela somente-leitura com seleção de linhas + barra de ações
-    (adicionar / editar / excluir / ação em massa)."""
-    dataframe_kwargs = {}
-    if height is not None:
-        dataframe_kwargs["height"] = height
+    """Lista de cards com adicionar / editar / excluir / ação rápida — sem tabelas."""
+    inject_roteiro_css()
+    _card_toolbar(table, label, fields, len(view_df))
 
-    event = st.dataframe(
-        view_df,
-        column_config=column_config,
-        hide_index=True,
-        on_select="rerun",
-        selection_mode="multi-row",
-        key=f"{table}_select",
-        **dataframe_kwargs,
-    )
-    selected_idx = event.selection.rows
-    selected_rows = view_df.iloc[selected_idx] if selected_idx else view_df.iloc[0:0]
-    n_sel = len(selected_rows)
+    if view_df.empty:
+        st.html(
+            '<div class="et-empty">'
+            f"<strong>Nada por aqui ainda</strong>"
+            f"Toque em Adicionar para criar o primeiro item de {escape(label)}."
+            "</div>"
+        )
+        return
 
-    with st.container(horizontal=True):
-        if st.button("Adicionar", icon=":material/add:", key=f"{table}_add", type="primary"):
-            open_form_dialog("add", table, label, fields)
-        if st.button("Editar", icon=":material/edit:", key=f"{table}_edit", disabled=n_sel != 1):
-            open_form_dialog("edit", table, label, fields, row=selected_rows.iloc[0])
-        if st.button("Excluir", icon=":material/delete:", key=f"{table}_delete", disabled=n_sel == 0):
-            open_delete_dialog(table, label, selected_rows, display_fn)
-        if bulk_action is not None:
-            if st.button(
-                bulk_action["label"], icon=bulk_action.get("icon"), key=f"{table}_bulk", disabled=n_sel == 0
-            ):
-                db.update_rows(table, list(selected_rows["id"]), bulk_action["field"], bulk_action["value"])
-                _reset_selection(table)
-                st.toast(bulk_action["toast"], icon=":material/check_circle:")
-                st.rerun()
+    rows = list(view_df.iterrows())
+    ncols = max(1, min(columns, 3))
 
-    st.caption(f"{n_sel} selecionado(s) · {len(view_df)} exibido(s)")
+    for i in range(0, len(rows), ncols):
+        chunk = rows[i : i + ncols]
+        cols = st.columns(len(chunk), gap="medium")
+        for col, (_, row) in zip(cols, chunk):
+            with col:
+                title = title_fn(row)
+                icon = icon_fn(row) if icon_fn else ""
+                with st.container(border=True):
+                    head_l, head_r = st.columns([3, 1], vertical_alignment="top")
+                    with head_l:
+                        st.markdown(f"**{icon} {title}**".strip() if icon else f"**{title}**")
+                    with head_r:
+                        if badge_fn is not None:
+                            badge = badge_fn(row)
+                            if badge:
+                                st.html(badge)
+
+                    for line in lines_fn(row):
+                        if line:
+                            st.caption(line)
+
+                    _card_actions(
+                        table,
+                        label,
+                        fields,
+                        row,
+                        display_fn,
+                        quick_action=quick_action,
+                    )
+
+
+# Mantido como alias por compatibilidade interna
+def render_crud_table(*args, **kwargs):
+    raise RuntimeError("Use render_crud_cards — tabelas foram substituídas por cards.")

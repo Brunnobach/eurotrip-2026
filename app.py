@@ -68,9 +68,6 @@ def parse_date_range(value, fallback_start: date, fallback_end: date) -> tuple[d
     return value, value
 
 
-EUR = "€ %.2f"
-
-
 # =============================================================================
 # Sidebar — navegação e filtros globais
 # =============================================================================
@@ -247,57 +244,54 @@ with tabs[0]:
     ho_f = apply_cidade_filter(hospedagem, ["cidade"], cidade_filtro)
     ho_f = apply_period_filter(ho_f, ["checkin", "checkout"], periodo_ini, periodo_fim)
 
-    roteiro.render_roteiro(it_f, tr_f, ho_f)
+    roteiro.render_roteiro(
+        it_f,
+        tr_f,
+        ho_f,
+        checklist=checklist,
+        all_itinerario=itinerario,
+        all_transportes=transportes,
+        all_hospedagem=hospedagem,
+    )
 
 # --- ITINERÁRIO ---
 with tabs[1]:
     filtered = apply_cidade_filter(itinerario, ["cidade"], cidade_filtro)
     filtered = apply_period_filter(filtered, ["data"], periodo_ini, periodo_fim)
 
-    itinerario_config = {
-        "id": st.column_config.TextColumn("Código", width="small"),
-        "data": st.column_config.DateColumn("Data", format="DD/MM/YYYY"),
-        "cidade": st.column_config.TextColumn("Cidade"),
-        "pais": st.column_config.TextColumn("País"),
-        "atividade": st.column_config.TextColumn("Atividade", width="large"),
-        "tipo": st.column_config.TextColumn("Tipo"),
-        "descricao": st.column_config.TextColumn("Descrição", width="large"),
-        "status": st.column_config.TextColumn("Status"),
-    }
-    ui.render_crud_table(
+    ui.render_crud_cards(
         "itinerario",
         "Itinerário",
         filtered,
-        itinerario_config,
         ui.ITINERARIO_FIELDS,
         display_fn=lambda r: f"{r['data']:%d/%m} — {r['atividade']} ({r['cidade']})",
-        bulk_action=dict(
-            label="Marcar confirmado",
+        title_fn=lambda r: str(r["atividade"]),
+        icon_fn=lambda r: ui.tipo_icon(str(r.get("tipo", "Outro"))),
+        badge_fn=lambda r: ui.status_badge_html(str(r.get("status", "Sugestão - validar"))),
+        lines_fn=lambda r: [
+            f":material/calendar_today: {ui._fmt_date_short(r['data'])} · {r['cidade']} ({r['pais']})",
+            f":material/category: {r['tipo']}",
+            str(r.get("descricao", "") or "").strip() or None,
+        ],
+        quick_action=dict(
+            label="Confirmar",
             icon=":material/check:",
             field="status",
             value="Confirmado",
-            toast="Itens marcados como confirmados.",
+            toast="Atividade confirmada.",
+            when=lambda r: str(r.get("status")) != "Confirmado",
         ),
+        columns=2,
     )
 
-    st.bar_chart(itinerario.groupby("pais").size(), x_label="País", y_label="Atividades")
+    with st.expander("Atividades por país", expanded=False):
+        st.bar_chart(itinerario.groupby("pais").size(), x_label="País", y_label="Atividades")
 
 # --- TRANSPORTES ---
 with tabs[2]:
     filtered = apply_cidade_filter(transportes, ["origem", "destino"], cidade_filtro)
     filtered = apply_period_filter(filtered, ["data"], periodo_ini, periodo_fim)
 
-    transportes_config = {
-        "id": st.column_config.TextColumn("Código", width="small"),
-        "tipo": st.column_config.TextColumn("Tipo"),
-        "origem": st.column_config.TextColumn("Origem"),
-        "destino": st.column_config.TextColumn("Destino"),
-        "data": st.column_config.DateColumn("Data", format="DD/MM/YYYY"),
-        "hora_saida": st.column_config.TextColumn("Saída"),
-        "hora_chegada": st.column_config.TextColumn("Chegada"),
-        "status": st.column_config.TextColumn("Status"),
-        "duracao": st.column_config.TextColumn("Duração", width="small"),
-    }
     transportes_fields = [
         dict(key="tipo", label="Tipo", type="select", options=["Voo", "Trem", "Barco", "Ônibus", "Carro", "Outro"], default="Trem"),
         dict(key="origem", label="Origem", type="text"),
@@ -308,20 +302,42 @@ with tabs[2]:
         dict(key="status", label="Status", type="select", options=["Confirmado", "Sugestão - validar", "Cancelado"], default="Sugestão - validar"),
         dict(key="duracao", label="Duração", type="text", help="Ex.: 1h30"),
     ]
-    ui.render_crud_table(
+
+    def _transporte_lines(r):
+        saida = str(r.get("hora_saida", "") or "").strip()
+        chegada = str(r.get("hora_chegada", "") or "").strip()
+        if saida and chegada:
+            horas = f"{saida} → {chegada}"
+        elif saida:
+            horas = f"sai {saida}"
+        else:
+            horas = "horário a definir"
+        dur = str(r.get("duracao", "") or "").strip()
+        return [
+            f":material/calendar_today: {ui._fmt_date_short(r['data'])}",
+            f":material/schedule: {horas}" + (f" · {dur}" if dur else ""),
+            f":material/tag: {r['id']}",
+        ]
+
+    ui.render_crud_cards(
         "transportes",
         "Transportes",
         filtered,
-        transportes_config,
         transportes_fields,
         display_fn=lambda r: f"{r['origem']} → {r['destino']} ({r['data']:%d/%m})",
-        bulk_action=dict(
-            label="Marcar confirmado",
+        title_fn=lambda r: f"{r['origem']} → {r['destino']}",
+        icon_fn=lambda r: ui.tipo_icon(str(r.get("tipo", "Outro"))),
+        badge_fn=lambda r: ui.status_badge_html(str(r.get("status", "Sugestão - validar"))),
+        lines_fn=_transporte_lines,
+        quick_action=dict(
+            label="Confirmar",
             icon=":material/check:",
             field="status",
             value="Confirmado",
-            toast="Trechos marcados como confirmados.",
+            toast="Trecho confirmado.",
+            when=lambda r: str(r.get("status")) != "Confirmado",
         ),
+        columns=1,
     )
 
 # --- HOSPEDAGEM ---
@@ -329,15 +345,6 @@ with tabs[3]:
     filtered = apply_cidade_filter(hospedagem, ["cidade"], cidade_filtro)
     filtered = apply_period_filter(filtered, ["checkin", "checkout"], periodo_ini, periodo_fim)
 
-    hospedagem_config = {
-        "id": st.column_config.TextColumn("Código", width="small"),
-        "cidade": st.column_config.TextColumn("Cidade"),
-        "nome": st.column_config.TextColumn("Hotel / acomodação", width="large"),
-        "checkin": st.column_config.DateColumn("Check-in", format="DD/MM/YYYY"),
-        "checkout": st.column_config.DateColumn("Check-out", format="DD/MM/YYYY"),
-        "horario_checkin": st.column_config.TextColumn("Horário check-in", width="small"),
-        "observacoes": st.column_config.TextColumn("Observações", width="large"),
-    }
     hospedagem_fields = [
         dict(key="cidade", label="Cidade", type="text"),
         dict(key="nome", label="Hotel / acomodação", type="text", default="A definir"),
@@ -346,13 +353,29 @@ with tabs[3]:
         dict(key="horario_checkin", label="Horário check-in", type="text", help="Formato HH:MM", default="15:00"),
         dict(key="observacoes", label="Observações", type="textarea"),
     ]
-    ui.render_crud_table(
+
+    def _hotel_lines(r):
+        noites = int((r["checkout"] - r["checkin"]).days) if pd.notna(r["checkout"]) and pd.notna(r["checkin"]) else 0
+        horario = str(r.get("horario_checkin", "") or "").strip()
+        obs = str(r.get("observacoes", "") or "").strip()
+        return [
+            f":material/location_on: {r['cidade']}",
+            f":material/login: Check-in {ui._fmt_date_short(r['checkin'])}"
+            + (f" às {horario}" if horario else ""),
+            f":material/logout: Check-out {ui._fmt_date_short(r['checkout'])} · {noites} noite(s)",
+            obs or None,
+        ]
+
+    ui.render_crud_cards(
         "hospedagem",
         "Hospedagem",
         filtered,
-        hospedagem_config,
         hospedagem_fields,
         display_fn=lambda r: f"{r['cidade']} — {r['nome']}",
+        title_fn=lambda r: str(r["nome"]),
+        icon_fn=lambda _r: ":material/hotel:",
+        lines_fn=_hotel_lines,
+        columns=1,
     )
 
     noites_total = int((hospedagem["checkout"] - hospedagem["checkin"]).dt.days.sum())
@@ -362,16 +385,6 @@ with tabs[3]:
 with tabs[4]:
     filtered = apply_cidade_filter(atracoes, ["cidade"], cidade_filtro)
 
-    atracoes_config = {
-        "id": st.column_config.TextColumn("Código", width="small"),
-        "nome": st.column_config.TextColumn("Atração", width="large"),
-        "cidade": st.column_config.TextColumn("Cidade"),
-        "tipo": st.column_config.TextColumn("Tipo"),
-        "necessita_ingresso": st.column_config.CheckboxColumn("Ingresso?"),
-        "preco_eur": st.column_config.NumberColumn("Preço (EUR)", format=EUR),
-        "horario_marcado": st.column_config.TextColumn("Horário marcado"),
-        "duracao_estimada": st.column_config.TextColumn("Duração estimada", width="small"),
-    }
     atracoes_fields = [
         dict(key="nome", label="Atração", type="text"),
         dict(key="cidade", label="Cidade", type="text"),
@@ -381,26 +394,38 @@ with tabs[4]:
         dict(key="horario_marcado", label="Horário marcado", type="text", default="A definir"),
         dict(key="duracao_estimada", label="Duração estimada", type="text", help="Ex.: 1h30"),
     ]
-    ui.render_crud_table(
+
+    def _atracao_lines(r):
+        ingresso = "Precisa de ingresso" if bool(r.get("necessita_ingresso")) else "Sem ingresso"
+        preco = ui._fmt_money(r.get("preco_eur"), "EUR")
+        horario = str(r.get("horario_marcado", "") or "").strip() or "A definir"
+        dur = str(r.get("duracao_estimada", "") or "").strip()
+        return [
+            f":material/location_on: {r['cidade']} · {r['tipo']}",
+            f":material/confirmation_number: {ingresso} · {preco}",
+            f":material/schedule: {horario}" + (f" · {dur}" if dur else ""),
+        ]
+
+    def _atracao_badge(r):
+        if bool(r.get("necessita_ingresso")):
+            return ui.plain_badge_html("Ingresso", kind="warn")
+        return ui.plain_badge_html("Livre", kind="ok")
+
+    ui.render_crud_cards(
         "atracoes",
         "Atrações",
         filtered,
-        atracoes_config,
         atracoes_fields,
         display_fn=lambda r: f"{r['nome']} ({r['cidade']})",
+        title_fn=lambda r: str(r["nome"]),
+        icon_fn=lambda _r: ":material/attractions:",
+        badge_fn=_atracao_badge,
+        lines_fn=_atracao_lines,
+        columns=2,
     )
 
 # --- FINANCEIRO ---
 with tabs[5]:
-    financeiro_config = {
-        "id": st.column_config.TextColumn("Código", width="small"),
-        "categoria": st.column_config.TextColumn("Categoria"),
-        "item": st.column_config.TextColumn("Item", width="large"),
-        "valor_estimado": st.column_config.NumberColumn("Valor estimado", format=EUR),
-        "valor_real": st.column_config.NumberColumn("Valor real", format=EUR),
-        "moeda": st.column_config.TextColumn("Moeda"),
-        "pago": st.column_config.CheckboxColumn("Pago?"),
-    }
     financeiro_fields = [
         dict(key="categoria", label="Categoria", type="select", options=["Passeio", "Hospedagem", "Transporte", "Alimentação", "Outro"], default="Passeio"),
         dict(key="item", label="Item", type="text"),
@@ -409,20 +434,34 @@ with tabs[5]:
         dict(key="moeda", label="Moeda", type="select", options=["EUR", "BRL", "USD", "PLN", "ALL"], default="EUR"),
         dict(key="pago", label="Pago?", type="checkbox", default=False),
     ]
-    ui.render_crud_table(
+
+    def _fin_lines(r):
+        moeda = str(r.get("moeda", "EUR"))
+        return [
+            f":material/category: {r['categoria']}",
+            f":material/payments: Estimado {ui._fmt_money(r.get('valor_estimado'), moeda)}"
+            f" · Real {ui._fmt_money(r.get('valor_real'), moeda)}",
+        ]
+
+    ui.render_crud_cards(
         "financeiro",
         "Financeiro",
         financeiro,
-        financeiro_config,
         financeiro_fields,
-        display_fn=lambda r: f"{r['item']} (€ {r['valor_estimado']:.0f})",
-        bulk_action=dict(
+        display_fn=lambda r: f"{r['item']} (€ {r['valor_estimado']:.0f})" if pd.notna(r.get("valor_estimado")) else str(r["item"]),
+        title_fn=lambda r: str(r["item"]),
+        icon_fn=lambda _r: ":material/payments:",
+        badge_fn=lambda r: ui.plain_badge_html("Pago", kind="ok") if bool(r.get("pago")) else ui.plain_badge_html("Pendente", kind="warn"),
+        lines_fn=_fin_lines,
+        quick_action=dict(
             label="Marcar pago",
             icon=":material/paid:",
             field="pago",
             value=True,
-            toast="Itens marcados como pagos.",
+            toast="Item marcado como pago.",
+            when=lambda r: not bool(r.get("pago")),
         ),
+        columns=2,
     )
 
     fc1, fc2, fc3 = st.columns(3)
@@ -430,39 +469,44 @@ with tabs[5]:
     fc2.metric("Total gasto real", f"€ {financeiro['valor_real'].sum(skipna=True):,.0f}", border=True)
     fc3.metric("Itens pagos", f"{int(financeiro['pago'].sum())} / {len(financeiro)}", border=True)
 
-    st.bar_chart(
-        financeiro.groupby("categoria")["valor_estimado"].sum(),
-        x_label="Categoria",
-        y_label="Valor estimado (EUR)",
-    )
+    with st.expander("Gasto estimado por categoria", expanded=False):
+        st.bar_chart(
+            financeiro.groupby("categoria")["valor_estimado"].sum(),
+            x_label="Categoria",
+            y_label="Valor estimado (EUR)",
+        )
 
 # --- CHECKLIST ---
 with tabs[6]:
-    checklist_config = {
-        "id": st.column_config.TextColumn("Código", width="small"),
-        "categoria": st.column_config.TextColumn("Categoria"),
-        "item": st.column_config.TextColumn("Item", width="large"),
-        "concluido": st.column_config.CheckboxColumn("Concluído?"),
-    }
     checklist_fields = [
         dict(key="categoria", label="Categoria", type="select", options=["Documentos", "Medicamentos", "Bagagem", "Eletrônicos", "Financeiro", "Outro"], default="Documentos"),
         dict(key="item", label="Item", type="text"),
         dict(key="concluido", label="Concluído?", type="checkbox", default=False),
     ]
-    ui.render_crud_table(
+
+    ui.render_crud_cards(
         "checklist",
         "Checklist",
         checklist,
-        checklist_config,
         checklist_fields,
         display_fn=lambda r: r["item"],
-        bulk_action=dict(
-            label="Marcar concluído",
+        title_fn=lambda r: str(r["item"]),
+        icon_fn=lambda r: ":material/check_circle:" if bool(r.get("concluido")) else ":material/radio_button_unchecked:",
+        badge_fn=lambda r: (
+            ui.plain_badge_html("Feito", kind="ok")
+            if bool(r.get("concluido"))
+            else ui.plain_badge_html("Pendente", kind="warn")
+        ),
+        lines_fn=lambda r: [f":material/folder: {r['categoria']}"],
+        quick_action=dict(
+            label="Marcar feito",
             icon=":material/check:",
             field="concluido",
             value=True,
-            toast="Itens marcados como concluídos.",
+            toast="Item concluído.",
+            when=lambda r: not bool(r.get("concluido")),
         ),
+        columns=2,
     )
 
     pendentes_check = int((~checklist["concluido"]).sum())
