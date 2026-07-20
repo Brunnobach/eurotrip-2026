@@ -273,13 +273,16 @@ section.main {
   color: #E8EEEC !important;
   border-right: 1px solid #2A3531 !important;
 }
-[data-testid="stSidebar"] * {
-  color: #E8EEEC;
+/* Não forçar cor em * — isso deixa texto claro em botão branco */
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"],
+[data-testid="stSidebar"] [data-testid="stWidgetLabel"],
+[data-testid="stSidebar"] [data-testid="stCaptionContainer"],
+[data-testid="stSidebar"] label {
+  color: #E8EEEC !important;
 }
 /* Texto principal */
 .stMarkdown, .stMarkdown p, .stMarkdown li, .stCaption, .stText,
-[data-testid="stMarkdownContainer"], [data-testid="stWidgetLabel"],
-label, .stSelectbox, .stMultiSelect {
+[data-testid="stMarkdownContainer"], [data-testid="stWidgetLabel"] {
   color: #E8EEEC !important;
 }
 .stMarkdown h1, .stMarkdown h2, .stMarkdown h3, .stMarkdown h4 {
@@ -299,6 +302,82 @@ div[data-testid="stExpander"],
 [data-testid="stMetricValue"], [data-testid="stMetricLabel"] {
   color: #F4F7F6 !important;
 }
+
+/* —— Botões legíveis (modo escuro) —— */
+.stButton > button,
+[data-testid="stBaseButton-secondary"],
+[data-testid="stBaseButton-secondaryFormSubmit"],
+[data-testid="stBaseButton-primary"],
+[data-testid="stBaseButton-primaryFormSubmit"],
+[data-testid="stBaseButton-tertiary"],
+[data-testid="stBaseButton-tertiaryFormSubmit"],
+button[data-testid^="stBaseButton"] {
+  background-color: #24332E !important;
+  color: #F8FAF9 !important;
+  border: 1px solid #4B5E57 !important;
+  opacity: 1 !important;
+}
+.stButton > button p,
+.stButton > button span,
+.stButton > button div,
+.stButton > button svg,
+[data-testid^="stBaseButton"] p,
+[data-testid^="stBaseButton"] span,
+[data-testid^="stBaseButton"] div,
+[data-testid^="stBaseButton"] svg {
+  color: #F8FAF9 !important;
+  fill: #F8FAF9 !important;
+}
+/* Primary: destaque petróleo com texto branco */
+[data-testid="stBaseButton-primary"],
+[data-testid="stBaseButton-primaryFormSubmit"],
+.stButton > button[kind="primary"] {
+  background-color: #0D9488 !important;
+  color: #FFFFFF !important;
+  border-color: #14B8A6 !important;
+}
+[data-testid="stBaseButton-primary"] p,
+[data-testid="stBaseButton-primary"] span,
+[data-testid="stBaseButton-primary"] div,
+[data-testid="stBaseButton-primary"] svg,
+[data-testid="stBaseButton-primaryFormSubmit"] p,
+[data-testid="stBaseButton-primaryFormSubmit"] span,
+[data-testid="stBaseButton-primaryFormSubmit"] svg {
+  color: #FFFFFF !important;
+  fill: #FFFFFF !important;
+}
+/* Tertiary: contorno, sem fundo branco */
+[data-testid="stBaseButton-tertiary"],
+[data-testid="stBaseButton-tertiaryFormSubmit"],
+.stButton > button[kind="tertiary"] {
+  background-color: transparent !important;
+  color: #E8EEEC !important;
+  border: 1px solid #5B6F68 !important;
+}
+[data-testid="stBaseButton-tertiary"] p,
+[data-testid="stBaseButton-tertiary"] span,
+[data-testid="stBaseButton-tertiary"] svg,
+[data-testid="stBaseButton-tertiaryFormSubmit"] p,
+[data-testid="stBaseButton-tertiaryFormSubmit"] span,
+[data-testid="stBaseButton-tertiaryFormSubmit"] svg {
+  color: #E8EEEC !important;
+  fill: #E8EEEC !important;
+}
+/* Hover */
+.stButton > button:hover,
+[data-testid^="stBaseButton"]:hover {
+  filter: brightness(1.12);
+  border-color: #5EEAD4 !important;
+}
+/* Disabled ainda legível */
+.stButton > button:disabled,
+[data-testid^="stBaseButton"]:disabled {
+  background-color: #1A2420 !important;
+  color: #8A9A94 !important;
+  border-color: #2F3D38 !important;
+  opacity: 0.85 !important;
+}
+
 /* Inputs */
 [data-baseweb="input"] input,
 [data-baseweb="textarea"] textarea,
@@ -330,6 +409,24 @@ button[data-baseweb="tab"] {
 }
 button[data-baseweb="tab"][aria-selected="true"] {
   color: #5EEAD4 !important;
+}
+/* Segmented control */
+[data-testid="stSegmentedControl"] button,
+[data-testid="stSegmentedControl"] label {
+  color: #F4F7F6 !important;
+  background-color: #1F2C27 !important;
+  border-color: #3A4A44 !important;
+}
+[data-testid="stSegmentedControl"] button[aria-checked="true"],
+[data-testid="stSegmentedControl"] label[data-checked="true"] {
+  background-color: #0D9488 !important;
+  color: #FFFFFF !important;
+}
+/* Checkbox / toggle labels */
+[data-testid="stCheckbox"] label,
+[data-testid="stCheckbox"] p,
+[data-testid="stWidgetLabel"] p {
+  color: #E8EEEC !important;
 }
 /* Dataframe */
 [data-testid="stDataFrame"],
