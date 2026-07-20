@@ -545,49 +545,153 @@ def render_activity_card(row: pd.Series, key_prefix: str, compact: bool = False)
                     set_itinerario_status(row_id, "Cancelado", "Atividade cancelada.")
 
 
-def render_crud_table(
+def _fmt_date_short(value) -> str:
+    if value is None or (isinstance(value, float) and pd.isna(value)):
+        return "—"
+    if isinstance(value, pd.Timestamp):
+        if pd.isna(value):
+            return "—"
+        return value.strftime("%d/%m/%Y")
+    return str(value)
+
+
+def _fmt_money(value, moeda: str = "EUR") -> str:
+    if value is None or (isinstance(value, float) and pd.isna(value)):
+        return "—"
+    try:
+        n = float(value)
+    except (TypeError, ValueError):
+        return "—"
+    symbol = {"EUR": "€", "BRL": "R$", "USD": "$"}.get(moeda, moeda + " ")
+    if moeda in {"EUR", "BRL", "USD"}:
+        return f"{symbol} {n:,.0f}".replace(",", ".")
+    return f"{n:,.0f} {moeda}"
+
+
+def plain_badge_html(label: str, *, kind: str = "ok") -> str:
+    """Badge simples para estados pago/pendente/concluído."""
+    if is_dark_mode():
+        styles = {
+            "ok": ("#BBF7D0", "#14532D", "#4ADE80"),
+            "warn": ("#FDE68A", "#78350F", "#FBBF24"),
+            "off": ("#D1DAD6", "#1F2C27", "#3A4A44"),
+        }
+    else:
+        styles = {
+            "ok": ("#166534", "#DCFCE7", "#86EFAC"),
+            "warn": ("#92400E", "#FEF3C7", "#FCD34D"),
+            "off": ("#57534E", "#F4F6F5", "#E2E5E4"),
+        }
+    color, bg, border = styles.get(kind, styles["off"])
+    return (
+        f'<span class="et-badge" style="color:{color};background:{bg};'
+        f'border-color:{border};">{escape(label)}</span>'
+    )
+
+
+def _card_toolbar(table: str, label: str, fields: list[dict], count: int) -> None:
+    left, right = st.columns([2, 1], vertical_alignment="center")
+    with left:
+        st.caption(f"{count} item(ns) nesta vista")
+    with right:
+        if st.button("Adicionar", icon=":material/add:", key=f"{table}_add", type="primary", width="stretch"):
+            open_form_dialog("add", table, label, fields)
+
+
+def _card_actions(
+    table: str,
+    label: str,
+    fields: list[dict],
+    row: pd.Series,
+    display_fn,
+    *,
+    quick_action: dict | None = None,
+) -> None:
+    row_id = str(row["id"])
+    with st.container(horizontal=True):
+        if quick_action is not None:
+            show = quick_action.get("when", lambda _r: True)
+            if show(row):
+                if st.button(
+                    quick_action["label"],
+                    icon=quick_action.get("icon"),
+                    key=f"{table}_qa_{row_id}",
+                    type="primary",
+                ):
+                    db.update_row(
+                        table,
+                        row_id,
+                        {quick_action["field"]: quick_action["value"]},
+                    )
+                    st.toast(quick_action["toast"], icon=":material/check_circle:")
+                    st.rerun()
+        if st.button("Editar", icon=":material/edit:", key=f"{table}_edit_{row_id}"):
+            open_form_dialog("edit", table, label, fields, row=row)
+        if st.button("Excluir", icon=":material/delete:", key=f"{table}_del_{row_id}", type="tertiary"):
+            open_delete_dialog(table, label, pd.DataFrame([row.to_dict()]), display_fn)
+
+
+def render_crud_cards(
     table: str,
     label: str,
     view_df: pd.DataFrame,
-    column_config: dict,
     fields: list[dict],
     display_fn,
-    bulk_action: dict | None = None,
-    height: int | None = None,
+    *,
+    title_fn,
+    lines_fn,
+    badge_fn=None,
+    icon_fn=None,
+    quick_action: dict | None = None,
+    columns: int = 1,
 ) -> None:
-    """Tabela somente-leitura com seleção de linhas + barra de ações
-    (adicionar / editar / excluir / ação em massa)."""
-    dataframe_kwargs = {}
-    if height is not None:
-        dataframe_kwargs["height"] = height
+    """Lista de cards com adicionar / editar / excluir / ação rápida — sem tabelas."""
+    inject_roteiro_css()
+    _card_toolbar(table, label, fields, len(view_df))
 
-    event = st.dataframe(
-        view_df,
-        column_config=column_config,
-        hide_index=True,
-        on_select="rerun",
-        selection_mode="multi-row",
-        key=f"{table}_select",
-        **dataframe_kwargs,
-    )
-    selected_idx = event.selection.rows
-    selected_rows = view_df.iloc[selected_idx] if selected_idx else view_df.iloc[0:0]
-    n_sel = len(selected_rows)
+    if view_df.empty:
+        st.html(
+            '<div class="et-empty">'
+            f"<strong>Nada por aqui ainda</strong>"
+            f"Toque em Adicionar para criar o primeiro item de {escape(label)}."
+            "</div>"
+        )
+        return
 
-    with st.container(horizontal=True):
-        if st.button("Adicionar", icon=":material/add:", key=f"{table}_add", type="primary"):
-            open_form_dialog("add", table, label, fields)
-        if st.button("Editar", icon=":material/edit:", key=f"{table}_edit", disabled=n_sel != 1):
-            open_form_dialog("edit", table, label, fields, row=selected_rows.iloc[0])
-        if st.button("Excluir", icon=":material/delete:", key=f"{table}_delete", disabled=n_sel == 0):
-            open_delete_dialog(table, label, selected_rows, display_fn)
-        if bulk_action is not None:
-            if st.button(
-                bulk_action["label"], icon=bulk_action.get("icon"), key=f"{table}_bulk", disabled=n_sel == 0
-            ):
-                db.update_rows(table, list(selected_rows["id"]), bulk_action["field"], bulk_action["value"])
-                _reset_selection(table)
-                st.toast(bulk_action["toast"], icon=":material/check_circle:")
-                st.rerun()
+    rows = list(view_df.iterrows())
+    ncols = max(1, min(columns, 3))
 
-    st.caption(f"{n_sel} selecionado(s) · {len(view_df)} exibido(s)")
+    for i in range(0, len(rows), ncols):
+        chunk = rows[i : i + ncols]
+        cols = st.columns(len(chunk), gap="medium")
+        for col, (_, row) in zip(cols, chunk):
+            with col:
+                title = title_fn(row)
+                icon = icon_fn(row) if icon_fn else ""
+                with st.container(border=True):
+                    head_l, head_r = st.columns([3, 1], vertical_alignment="top")
+                    with head_l:
+                        st.markdown(f"**{icon} {title}**".strip() if icon else f"**{title}**")
+                    with head_r:
+                        if badge_fn is not None:
+                            badge = badge_fn(row)
+                            if badge:
+                                st.html(badge)
+
+                    for line in lines_fn(row):
+                        if line:
+                            st.caption(line)
+
+                    _card_actions(
+                        table,
+                        label,
+                        fields,
+                        row,
+                        display_fn,
+                        quick_action=quick_action,
+                    )
+
+
+# Mantido como alias por compatibilidade interna
+def render_crud_table(*args, **kwargs):
+    raise RuntimeError("Use render_crud_cards — tabelas foram substituídas por cards.")
