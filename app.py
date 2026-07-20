@@ -11,6 +11,7 @@ import pandas as pd
 import streamlit as st
 
 import db
+import roteiro
 import ui
 
 st.set_page_config(
@@ -93,7 +94,7 @@ with st.sidebar:
     )
     periodo_ini, periodo_fim = parse_date_range(periodo_raw, min_data, max_data)
 
-    st.caption("Os filtros afetam as tabelas de Itinerário, Transportes, Hospedagem e Atrações.")
+    st.caption("Os filtros afetam Roteiro, Itinerário, Transportes, Hospedagem e Atrações.")
 
     st.space("small")
     if st.button("Restaurar roteiro original", icon=":material/restart_alt:", type="tertiary"):
@@ -115,10 +116,10 @@ with st.sidebar:
 
 
 # =============================================================================
-# Cabeçalho + KPIs
+# Cabeçalho + KPIs (compactos)
 # =============================================================================
 
-st.markdown("# :material/map: EUROTRIP 2026 — painel de controle")
+st.markdown("# :material/map: EUROTRIP 2026")
 
 dias_viagem = (itinerario["data"].max() - itinerario["data"].min()).days + 1
 paises = itinerario["pais"].nunique()
@@ -129,87 +130,101 @@ saldo = orcamento_estimado - gasto_real
 
 st.caption(
     f"{itinerario['data'].min():%d/%m} a {itinerario['data'].max():%d/%m/%Y} · "
-    f"{dias_viagem} dias · {paises} países"
+    f"{dias_viagem} dias · {paises} países · organize o dia a dia no Roteiro"
 )
 
-with st.container(horizontal=True):
-    st.metric("Dias de viagem", dias_viagem, border=True)
-    st.metric("Países", paises, border=True)
-    st.metric("Atividades", len(itinerario), border=True)
-    st.metric("Confirmados", confirmados, border=True)
-    st.metric("Orçamento estimado", f"€ {orcamento_estimado:,.0f}", border=True)
-    st.metric(
-        "Saldo (estimado − real)",
-        f"€ {saldo:,.0f}",
-        border=True,
-        delta_color="off" if gasto_real == 0 else "normal",
-    )
-
-st.space("medium")
-
-col_timeline, col_alertas = st.columns([2, 1])
-
-with col_timeline:
-    with st.container(border=True):
-        st.markdown("**:material/timeline: Timeline da viagem**")
-        tl = hospedagem.copy()
-        tl["Noites"] = (tl["checkout"] - tl["checkin"]).dt.days
-        chart = (
-            alt.Chart(tl)
-            .mark_bar(cornerRadius=4)
-            .encode(
-                x=alt.X("checkin:T", title=None),
-                x2="checkout:T",
-                y=alt.Y("cidade:N", sort=alt.EncodingSortField(field="checkin", op="min"), title=None),
-                color=alt.Color("cidade:N", legend=None),
-                tooltip=[
-                    alt.Tooltip("cidade:N", title="Cidade"),
-                    alt.Tooltip("checkin:T", title="Check-in", format="%d/%m"),
-                    alt.Tooltip("checkout:T", title="Check-out", format="%d/%m"),
-                    alt.Tooltip("Noites:Q", title="Noites"),
-                ],
-            )
-            .properties(height=280)
+with st.expander("Resumo da viagem (KPIs, timeline e alertas)", expanded=False):
+    with st.container(horizontal=True):
+        st.metric("Dias de viagem", dias_viagem, border=True)
+        st.metric("Países", paises, border=True)
+        st.metric("Atividades", len(itinerario), border=True)
+        st.metric("Confirmados", confirmados, border=True)
+        st.metric("Orçamento estimado", f"€ {orcamento_estimado:,.0f}", border=True)
+        st.metric(
+            "Saldo (estimado − real)",
+            f"€ {saldo:,.0f}",
+            border=True,
+            delta_color="off" if gasto_real == 0 else "normal",
         )
-        st.altair_chart(chart)
-        st.caption("Clique em uma linha da tabela abaixo para editar rapidamente essa hospedagem.")
 
-with col_alertas:
-    with st.container(border=True, height="stretch"):
-        st.markdown("**:material/schedule: Alertas de horário**")
+    st.space("small")
+    col_timeline, col_alertas = st.columns([2, 1])
 
-        hoje = pd.Timestamp(date.today())
-        futuros = transportes[transportes["data"] >= hoje].sort_values("data")
-        if not futuros.empty:
-            prox = futuros.iloc[0]
-            st.info(
-                f"Próximo trecho: **{prox['origem']} → {prox['destino']}** "
-                f"em {prox['data'].strftime('%d/%m/%Y')}"
-                + (f" às {prox['hora_saida']}" if str(prox["hora_saida"]).strip() else ""),
-                icon=":material/flight_takeoff:",
+    with col_timeline:
+        with st.container(border=True):
+            st.markdown("**:material/timeline: Timeline da viagem**")
+            tl = hospedagem.copy()
+            tl["Noites"] = (tl["checkout"] - tl["checkin"]).dt.days
+            chart = (
+                alt.Chart(tl)
+                .mark_bar(cornerRadius=4)
+                .encode(
+                    x=alt.X("checkin:T", title=None),
+                    x2="checkout:T",
+                    y=alt.Y(
+                        "cidade:N",
+                        sort=alt.EncodingSortField(field="checkin", op="min"),
+                        title=None,
+                    ),
+                    color=alt.Color("cidade:N", legend=None),
+                    tooltip=[
+                        alt.Tooltip("cidade:N", title="Cidade"),
+                        alt.Tooltip("checkin:T", title="Check-in", format="%d/%m"),
+                        alt.Tooltip("checkout:T", title="Check-out", format="%d/%m"),
+                        alt.Tooltip("Noites:Q", title="Noites"),
+                    ],
+                )
+                .properties(height=280)
             )
-        else:
-            st.caption("Nenhum trecho futuro a partir de hoje.")
+            st.altair_chart(chart)
+            st.caption("Hospedagens ao longo do período.")
 
-        pendentes = transportes[
-            (transportes["hora_saida"].astype(str).str.strip() == "")
-            | (transportes["hora_chegada"].astype(str).str.strip() == "")
-        ]
-        if not pendentes.empty:
-            st.warning(f"{len(pendentes)} trecho(s) sem horário confirmado:", icon=":material/warning:")
-            for _, row in pendentes.iterrows():
-                st.caption(f"• {row['id']} — {row['origem']} → {row['destino']} ({row['data'].strftime('%d/%m')})")
-        else:
-            st.success("Todos os trechos têm horário definido.", icon=":material/check_circle:")
+    with col_alertas:
+        with st.container(border=True, height="stretch"):
+            st.markdown("**:material/schedule: Alertas de horário**")
+
+            hoje = pd.Timestamp(date.today())
+            futuros = transportes[transportes["data"] >= hoje].sort_values("data")
+            if not futuros.empty:
+                prox = futuros.iloc[0]
+                st.info(
+                    f"Próximo trecho: **{prox['origem']} → {prox['destino']}** "
+                    f"em {prox['data'].strftime('%d/%m/%Y')}"
+                    + (f" às {prox['hora_saida']}" if str(prox["hora_saida"]).strip() else ""),
+                    icon=":material/flight_takeoff:",
+                )
+            else:
+                st.caption("Nenhum trecho futuro a partir de hoje.")
+
+            pendentes = transportes[
+                (transportes["hora_saida"].astype(str).str.strip() == "")
+                | (transportes["hora_chegada"].astype(str).str.strip() == "")
+            ]
+            if not pendentes.empty:
+                st.warning(
+                    f"{len(pendentes)} trecho(s) sem horário confirmado:",
+                    icon=":material/warning:",
+                )
+                for _, row in pendentes.iterrows():
+                    st.caption(
+                        f"• {row['id']} — {row['origem']} → {row['destino']} "
+                        f"({row['data'].strftime('%d/%m')})"
+                    )
+            else:
+                st.success(
+                    "Todos os trechos têm horário definido.",
+                    icon=":material/check_circle:",
+                )
 
 
 # =============================================================================
-# Abas de CRUD
+# Abas — Roteiro primeiro
 # =============================================================================
 
 tabs = st.tabs(
     [
-        ":material/map: Itinerário",
+        ":material/map: Roteiro",
+        ":material/calendar_month: Itinerário",
         ":material/directions_car: Transportes",
         ":material/hotel: Hospedagem",
         ":material/attractions: Atrações",
@@ -218,8 +233,21 @@ tabs = st.tabs(
     ]
 )
 
-# --- ITINERÁRIO ---
+# --- ROTEIRO ---
 with tabs[0]:
+    it_f = apply_cidade_filter(itinerario, ["cidade"], cidade_filtro)
+    it_f = apply_period_filter(it_f, ["data"], periodo_ini, periodo_fim)
+
+    tr_f = apply_cidade_filter(transportes, ["origem", "destino"], cidade_filtro)
+    tr_f = apply_period_filter(tr_f, ["data"], periodo_ini, periodo_fim)
+
+    ho_f = apply_cidade_filter(hospedagem, ["cidade"], cidade_filtro)
+    ho_f = apply_period_filter(ho_f, ["checkin", "checkout"], periodo_ini, periodo_fim)
+
+    roteiro.render_roteiro(it_f, tr_f, ho_f)
+
+# --- ITINERÁRIO ---
+with tabs[1]:
     filtered = apply_cidade_filter(itinerario, ["cidade"], cidade_filtro)
     filtered = apply_period_filter(filtered, ["data"], periodo_ini, periodo_fim)
 
@@ -233,25 +261,26 @@ with tabs[0]:
         "descricao": st.column_config.TextColumn("Descrição", width="large"),
         "status": st.column_config.TextColumn("Status"),
     }
-    itinerario_fields = [
-        dict(key="data", label="Data", type="date", default=date(2026, 8, 6)),
-        dict(key="cidade", label="Cidade", type="text"),
-        dict(key="pais", label="País", type="text"),
-        dict(key="atividade", label="Atividade", type="text"),
-        dict(key="tipo", label="Tipo", type="select", options=["Deslocamento", "Turismo", "Descanso", "Outro"], default="Turismo"),
-        dict(key="descricao", label="Descrição", type="textarea"),
-        dict(key="status", label="Status", type="select", options=["Confirmado", "Sugestão - validar", "Cancelado"], default="Sugestão - validar"),
-    ]
     ui.render_crud_table(
-        "itinerario", "Itinerário", filtered, itinerario_config, itinerario_fields,
+        "itinerario",
+        "Itinerário",
+        filtered,
+        itinerario_config,
+        ui.ITINERARIO_FIELDS,
         display_fn=lambda r: f"{r['data']:%d/%m} — {r['atividade']} ({r['cidade']})",
-        bulk_action=dict(label="Marcar confirmado", icon=":material/check:", field="status", value="Confirmado", toast="Itens marcados como confirmados."),
+        bulk_action=dict(
+            label="Marcar confirmado",
+            icon=":material/check:",
+            field="status",
+            value="Confirmado",
+            toast="Itens marcados como confirmados.",
+        ),
     )
 
     st.bar_chart(itinerario.groupby("pais").size(), x_label="País", y_label="Atividades")
 
 # --- TRANSPORTES ---
-with tabs[1]:
+with tabs[2]:
     filtered = apply_cidade_filter(transportes, ["origem", "destino"], cidade_filtro)
     filtered = apply_period_filter(filtered, ["data"], periodo_ini, periodo_fim)
 
@@ -277,13 +306,23 @@ with tabs[1]:
         dict(key="duracao", label="Duração", type="text", help="Ex.: 1h30"),
     ]
     ui.render_crud_table(
-        "transportes", "Transportes", filtered, transportes_config, transportes_fields,
+        "transportes",
+        "Transportes",
+        filtered,
+        transportes_config,
+        transportes_fields,
         display_fn=lambda r: f"{r['origem']} → {r['destino']} ({r['data']:%d/%m})",
-        bulk_action=dict(label="Marcar confirmado", icon=":material/check:", field="status", value="Confirmado", toast="Trechos marcados como confirmados."),
+        bulk_action=dict(
+            label="Marcar confirmado",
+            icon=":material/check:",
+            field="status",
+            value="Confirmado",
+            toast="Trechos marcados como confirmados.",
+        ),
     )
 
 # --- HOSPEDAGEM ---
-with tabs[2]:
+with tabs[3]:
     filtered = apply_cidade_filter(hospedagem, ["cidade"], cidade_filtro)
     filtered = apply_period_filter(filtered, ["checkin", "checkout"], periodo_ini, periodo_fim)
 
@@ -305,7 +344,11 @@ with tabs[2]:
         dict(key="observacoes", label="Observações", type="textarea"),
     ]
     ui.render_crud_table(
-        "hospedagem", "Hospedagem", filtered, hospedagem_config, hospedagem_fields,
+        "hospedagem",
+        "Hospedagem",
+        filtered,
+        hospedagem_config,
+        hospedagem_fields,
         display_fn=lambda r: f"{r['cidade']} — {r['nome']}",
     )
 
@@ -313,7 +356,7 @@ with tabs[2]:
     st.metric("Total de noites no roteiro", noites_total, border=True)
 
 # --- ATRAÇÕES ---
-with tabs[3]:
+with tabs[4]:
     filtered = apply_cidade_filter(atracoes, ["cidade"], cidade_filtro)
 
     atracoes_config = {
@@ -336,12 +379,16 @@ with tabs[3]:
         dict(key="duracao_estimada", label="Duração estimada", type="text", help="Ex.: 1h30"),
     ]
     ui.render_crud_table(
-        "atracoes", "Atrações", filtered, atracoes_config, atracoes_fields,
+        "atracoes",
+        "Atrações",
+        filtered,
+        atracoes_config,
+        atracoes_fields,
         display_fn=lambda r: f"{r['nome']} ({r['cidade']})",
     )
 
 # --- FINANCEIRO ---
-with tabs[4]:
+with tabs[5]:
     financeiro_config = {
         "id": st.column_config.TextColumn("Código", width="small"),
         "categoria": st.column_config.TextColumn("Categoria"),
@@ -360,9 +407,19 @@ with tabs[4]:
         dict(key="pago", label="Pago?", type="checkbox", default=False),
     ]
     ui.render_crud_table(
-        "financeiro", "Financeiro", financeiro, financeiro_config, financeiro_fields,
+        "financeiro",
+        "Financeiro",
+        financeiro,
+        financeiro_config,
+        financeiro_fields,
         display_fn=lambda r: f"{r['item']} (€ {r['valor_estimado']:.0f})",
-        bulk_action=dict(label="Marcar pago", icon=":material/paid:", field="pago", value=True, toast="Itens marcados como pagos."),
+        bulk_action=dict(
+            label="Marcar pago",
+            icon=":material/paid:",
+            field="pago",
+            value=True,
+            toast="Itens marcados como pagos.",
+        ),
     )
 
     fc1, fc2, fc3 = st.columns(3)
@@ -377,7 +434,7 @@ with tabs[4]:
     )
 
 # --- CHECKLIST ---
-with tabs[5]:
+with tabs[6]:
     checklist_config = {
         "id": st.column_config.TextColumn("Código", width="small"),
         "categoria": st.column_config.TextColumn("Categoria"),
@@ -390,9 +447,19 @@ with tabs[5]:
         dict(key="concluido", label="Concluído?", type="checkbox", default=False),
     ]
     ui.render_crud_table(
-        "checklist", "Checklist", checklist, checklist_config, checklist_fields,
+        "checklist",
+        "Checklist",
+        checklist,
+        checklist_config,
+        checklist_fields,
         display_fn=lambda r: r["item"],
-        bulk_action=dict(label="Marcar concluído", icon=":material/check:", field="concluido", value=True, toast="Itens marcados como concluídos."),
+        bulk_action=dict(
+            label="Marcar concluído",
+            icon=":material/check:",
+            field="concluido",
+            value=True,
+            toast="Itens marcados como concluídos.",
+        ),
     )
 
     pendentes_check = int((~checklist["concluido"]).sum())

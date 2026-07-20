@@ -2,6 +2,10 @@
 
 Painel de controle da viagem Itália + Albânia (06/08 a 20/08/2026), feito em Streamlit.
 
+A aba **Roteiro** é a visão principal: cards por dia (hotel + transportes + atividades)
+ou colunas por cidade, com ações rápidas para confirmar/editar. As demais abas
+continuam com tabelas CRUD para edição detalhada.
+
 ## Rodar localmente
 
 ```bash
